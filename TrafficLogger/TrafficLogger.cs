@@ -12,9 +12,12 @@ namespace TrafficLogger
 {
     public partial class TrafficLogger : ServiceBase
     {
+        private TrafficWriter _trafficWriter;
+
         public TrafficLogger()
         {
             InitializeComponent();
+
             trafficLog = new System.Diagnostics.EventLog();
             if (!System.Diagnostics.EventLog.SourceExists("TrafficLogger"))
             {
@@ -23,6 +26,8 @@ namespace TrafficLogger
             }
             trafficLog.Source = "TrafficLogger";
             trafficLog.Log = "DayLog";
+
+            _trafficWriter = new TrafficWriter();
         }
 
         protected override void OnStart(string[] args)
@@ -61,6 +66,7 @@ namespace TrafficLogger
         private void tmrIntervall_Tick(object sender, EventArgs e)
         {
             trafficLog.WriteEntry("Action", EventLogEntryType.Information, 1);
+            _trafficWriter.WriteLogEntry();
         }
     }
 }

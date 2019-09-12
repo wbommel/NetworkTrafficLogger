@@ -12,7 +12,7 @@ namespace TrafficLogger
     {
         #region declarations
         string _fileName = Path.Combine(Path.GetTempPath(), "NetworkTrafficLogger", "TrafficLog.csv");
-        string _strFormat = "{0};{1};{2};{3};{4};{5};{6};{7}";
+        string _strFormat = "{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}";
         #endregion
 
         #region constructor
@@ -20,7 +20,7 @@ namespace TrafficLogger
         {
             if (!File.Exists(_fileName))
             {
-                _writeToFile(string.Format(_strFormat, "Name", "Description", "Id", "NetworkInterfaceType", "OperationalStatus", "Speed", "recieved bytes", "sent bytes"));
+                _writeToFile(string.Format(_strFormat, "Date", "Time", "Name", "Description", "Id", "NetworkInterfaceType", "OperationalStatus", "Speed", "recieved bytes", "sent bytes"));
             }
         }
         #endregion
@@ -49,7 +49,8 @@ namespace TrafficLogger
 
             foreach (NetworkInterface ni in interfaces)
             {
-                _writeToFile(string.Format(_strFormat, ni.Name, ni.Description, ni.Id, ni.NetworkInterfaceType.ToString(), ni.OperationalStatus.ToString(), ni.Speed, ni.GetIPv4Statistics().BytesReceived, ni.GetIPv4Statistics().BytesSent));
+                var dtNow = DateTime.Now;
+                _writeToFile(string.Format(_strFormat, dtNow.ToShortDateString(), dtNow.ToLongTimeString(), ni.Name, ni.Description, ni.Id, ni.NetworkInterfaceType.ToString(), ni.OperationalStatus.ToString(), ni.Speed, ni.GetIPv4Statistics().BytesReceived, ni.GetIPv4Statistics().BytesSent));
             }
         }
         #endregion
