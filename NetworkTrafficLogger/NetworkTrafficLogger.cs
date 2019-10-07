@@ -146,7 +146,7 @@ namespace vobsoft.net
             NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface ni in interfaces)
             {
-
+                xxxxxx
             }
 
 
