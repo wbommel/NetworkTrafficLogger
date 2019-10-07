@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{04F87622-BC82-4523-B0CA-F42CF72FCA58}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vobsoft.Csharp.Database</RootNamespace>
+    <AssemblyName>SQLiteHandler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DatabaseOperationsSQLite.cs.txt" />
+    <Compile Include="Enumerations.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQLiteHandler.cs" />
+    <Content Include="SQLite.Interop.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\Installer.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\Installer.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Designer.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Designer.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Designer.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Interop.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Interop.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.EF6.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.EF6.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.EF6.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.Linq.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.Linq.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.Linq.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\test.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\test.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testef6.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testef6.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testlinq.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testlinq.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\Installer.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\Installer.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Designer.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Designer.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Designer.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Interop.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Interop.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.EF6.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.EF6.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.EF6.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.Linq.dll" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.Linq.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.Linq.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.xml" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\test.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\test.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testef6.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testef6.pdb" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testlinq.exe" />
+    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testlinq.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SQLiteHandler.cd" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x64\northwindEF.db" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.dll.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x64\test.exe.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x64\testef6.exe.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x64\testlinq.exe.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x86\northwindEF.db" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.dll.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x86\test.exe.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x86\testef6.exe.config" />
+    <None Include="System.Data.SQLite\v1.0.92.0_x86\testlinq.exe.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

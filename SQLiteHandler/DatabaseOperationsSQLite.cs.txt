@@ -1,0 +1,394 @@
+﻿/* Time Diagnosis Frame with Log Entry Example
+ 
+//Time Diagnosis
+if (_fTimeDiagnosis)
+{
+    _SW.Start();
+}
+
+//Time Diagnosis
+if (_fTimeDiagnosis)
+{
+    _SW.Stop();
+    ThrowLogEntryEvent(DateTime.Now, "TimeDiagnosis - Open Database (" + _strDatabaseFileName + ") - " + _SW.Elapsed.ToString());
+}
+ 
+ */
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Data.SQLite;
+using System.IO;
+using System.Windows;
+using System.Diagnostics;
+
+
+namespace CSharp.Libs.Database
+{
+    partial class DatabaseOperationsSQLite
+    {
+        #region declarations
+        private SQLiteConnection _CON = null;
+
+        private String _strDatabaseFileName = "";
+        //private String _strLocalErrors = "";
+        private Boolean _fDatabaseOpened = false;
+        private Boolean _fTimeDiagnosis = false;
+        private Stopwatch _SW = new Stopwatch();
+
+        #region events
+        public delegate void LogEntryEventHandler(object sender, LogEntryEventArgs e);
+        public delegate void TaskEventHandler(object sender, TaskEventArgs e);
+
+        public event LogEntryEventHandler LogEntry;
+        public event TaskEventHandler ehTask;
+
+        private void ThrowLogEntryEvent(DateTime EntryDateTime, String Message)
+        {
+            if (LogEntry != null)
+            {
+                LogEntry(this, new LogEntryEventArgs(EntryDateTime, Message));
+            }
+        }
+        private void ThrowLogEntryEvent(String Message)
+        {
+            if (LogEntry != null)
+            {
+                LogEntry(this, new LogEntryEventArgs(Message));
+            }
+        }
+
+        private void ThrowTaskEvent(TaskEventArgs.enmTaskAction taTaskAction, String TaskMessage)
+        {
+            if (ehTask != null)
+            {
+                ehTask(this, new TaskEventArgs(taTaskAction, TaskMessage));
+            }
+        }
+        #endregion
+        #endregion
+
+
+
+        #region constructor / terminator
+        public DatabaseOperationsSQLite(
+            String DatabaseFileName)
+        {
+            if (File.Exists(DatabaseFileName))
+            {
+                _strDatabaseFileName = DatabaseFileName;
+            }
+
+            if (_strDatabaseFileName.Trim() != "")
+            {
+                _OpenDatabase();
+            }
+        }
+
+        ~DatabaseOperationsSQLite()
+        {
+            try
+            {
+                _CON.Close();
+                _CON.Dispose();
+                _CON = null;
+            }
+            catch (Exception ex)
+            {
+                ThrowLogEntryEvent("ERROR in DatabaseOperationsSQLite.~DataToAccessWriter: " + ex.Message);
+            }
+        }
+        #endregion
+
+
+
+        #region private functions
+        /// <summary>_OpenDatabase</summary>
+        private void _OpenDatabase()
+        {
+            try
+            {
+                if (File.Exists(_strDatabaseFileName))
+                {
+                    if (_fTimeDiagnosis)
+                    {
+                        _SW.Start();
+                    }
+
+                    //Setting Cache to 600MB for performance reasons
+                    //Testphase
+                    _CON = new SQLiteConnection(String.Concat(
+                        "Data Source=", _strDatabaseFileName, ";",
+                        "Cache Size=600000;",
+                        "Page Size=1024"));
+                    _CON.Open();
+                    _fDatabaseOpened = true;
+
+                    if (_fTimeDiagnosis)
+                    {
+                        _SW.Stop();
+                        ThrowLogEntryEvent(DateTime.Now, "TimeDiagnosis - _OpenDatabase (" + _strDatabaseFileName + ") - " + _SW.Elapsed.ToString());
+                    }
+                }
+                else
+                {
+                    ThrowLogEntryEvent(DateTime.Now, "ERROR opening SQLiteDB: File not found.");
+                    _fDatabaseOpened = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _fDatabaseOpened = false;
+
+                //Log
+                ThrowLogEntryEvent(DateTime.Now, "ERROR opening SQLiteDB: " + ex.Message);
+            }
+        }
+
+        /// <summary>_GetReaderResult</summary>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        /// <history>17.05.2011</history>
+        private SQLiteDataReader _GetReaderResult(
+            String SQL)
+        {
+            try
+            {
+                SQLiteCommand CMD = new SQLiteCommand(SQL, _CON);
+                SQLiteDataReader DR = CMD.ExecuteReader(System.Data.CommandBehavior.Default);
+                return DR;
+            }
+            catch (Exception ex)
+            {
+                ThrowLogEntryEvent(DateTime.Now, "ERROR getting SQLiteDataReader: " + ex.Message);
+            }
+
+            return null;
+        }
+
+        /// <summary>_GetDataTable</summary>
+        /// <param name="SQLString"></param>
+        /// <returns></returns>
+        /// <history>18.05.2011</history>
+        private DataTable _GetDataTable(
+            String SQLString)
+        {
+            try
+            {
+                SQLiteDataAdapter DA = new SQLiteDataAdapter(SQLString, _CON);
+                SQLiteCommandBuilder CB = new SQLiteCommandBuilder(DA);
+                DataTable DT = new DataTable();
+                DA.Fill(DT);
+
+                CB.Dispose();
+                DA.Dispose();
+                CB = null;
+                DA = null;
+
+                return DT;
+            }
+            catch (Exception ex)
+            {
+                ThrowLogEntryEvent(DateTime.Now, "ERROR getting DataTable: " + ex.Message);
+            }
+
+            return null;
+        }
+
+        /// <summary>_HasRows</summary>
+        /// <param name="SQLString"></param>
+        /// <returns></returns>
+        /// <history>18.05.2011</history>
+        private Boolean _HasRows(
+            String SQLString)
+        {
+            try
+            {
+                SQLiteCommand CMD = new SQLiteCommand(SQLString, _CON);
+                SQLiteDataReader DR = CMD.ExecuteReader(System.Data.CommandBehavior.Default);
+
+                return DR.HasRows;
+            }
+            catch (Exception ex)
+            {
+                ThrowLogEntryEvent(DateTime.Now, "ERROR getting HasRows: " + ex.Message);
+            }
+
+            return false;
+        }
+        #endregion
+
+
+
+        #region interface
+        #region properties
+        public String DatabaseFileName
+        {
+            get
+            {
+                return _strDatabaseFileName;
+            }
+            set
+            {
+                if (File.Exists(value))
+                {
+                    _strDatabaseFileName = value;
+                }
+                else
+                {
+                    _strDatabaseFileName = "";
+                }
+
+                if (_fDatabaseOpened)
+                {
+                    _CON.Close();
+                    _CON.Dispose();
+                    _CON = null;
+                }
+
+                _OpenDatabase();
+            }
+        }
+
+        public Boolean DatabaseOpened
+        {
+            get
+            {
+                return _fDatabaseOpened;
+            }
+        }
+
+        public SQLiteConnection SQLiteCON
+        {
+            get
+            {
+                return _CON;
+            }
+        }
+
+        public Boolean TimeDiagnosis
+        {
+            get
+            {
+                return _fTimeDiagnosis;
+            }
+            set
+            {
+                _fTimeDiagnosis = value;
+            }
+        }
+        #endregion
+
+        #region methods
+        public SQLiteDataReader GetReaderResult(
+            String SQL)
+        {
+            return _GetReaderResult(SQL);
+        }
+
+        public DataTable GetDataTable(
+            String SQLString)
+        {
+            return _GetDataTable(SQLString);
+        }
+
+        public Boolean HasRows(
+            String SQLString)
+        {
+            return _HasRows(SQLString);
+        }
+        #endregion
+        #endregion
+    }
+
+
+
+    class LogEntryEventArgs : EventArgs
+    {
+        private DateTime _EntryDateTime;
+        private String _LogMessage = "";
+
+        public LogEntryEventArgs(
+            String LogMessage)
+        {
+            _EntryDateTime = DateTime.Now;
+            _LogMessage = LogMessage;
+        }
+
+        public LogEntryEventArgs(
+            DateTime EntryDateTime,
+            String LogMessage)
+        {
+            _EntryDateTime = EntryDateTime;
+            _LogMessage = LogMessage;
+        }
+
+        public DateTime EntryDateTime
+        {
+            get
+            {
+                return _EntryDateTime;
+            }
+        }
+
+        public String LogMessage
+        {
+            get
+            {
+                return _LogMessage;
+            }
+        }
+    }
+
+
+
+    class TaskEventArgs : EventArgs
+    {
+        private enmTaskAction _taAction = enmTaskAction.tskActUndefined;
+        private String _strTaskMessage = "";
+
+        public enum enmTaskAction
+        {
+            tskActUndefined = 1,
+            tskActStarted,
+            tskActWorking,
+            tstActStopped,
+            tskActDone
+        }
+
+        public TaskEventArgs(
+            enmTaskAction taAction,
+            String strTaskMessage)
+        {
+            _taAction = taAction;
+            _strTaskMessage = strTaskMessage;
+        }
+
+        public enmTaskAction TaskAction
+        {
+            get
+            {
+                return _taAction;
+            }
+            set
+            {
+                _taAction = value;
+            }
+        }
+
+        public String TaskMessage
+        {
+            get
+            {
+                return _strTaskMessage;
+            }
+            set
+            {
+                _strTaskMessage = value;
+            }
+        }
+    }
+}
