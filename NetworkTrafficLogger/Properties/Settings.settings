@@ -6,7 +6,7 @@
       <Value Profile="(Default)">C:\Users\adbrvo0\source\repos\NetworkAdapterTest\NetworkTrafficLogger\NetworkTraffic.s3db</Value>
     </Setting>
     <Setting Name="Interval" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">300000</Value>
+      <Value Profile="(Default)">10000</Value>
     </Setting>
   </Settings>
 </SettingsFile>

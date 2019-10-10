@@ -9,6 +9,7 @@ class Program
     static void Main(string[] args)
     {
         var t = new NetworkTrafficLogger();
+        t.StartLogging();
 
         while (true)
         {
@@ -57,6 +58,6 @@ class Program
         }
 
         Console.WriteLine(nl);
-        Console.WriteLine(Environment.MachineName);
+        Console.WriteLine(long.MaxValue);
     }
 }

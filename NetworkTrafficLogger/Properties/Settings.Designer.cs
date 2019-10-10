@@ -35,7 +35,7 @@ namespace vobsoft.net.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("300000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
         public double Interval {
             get {
                 return ((double)(this["Interval"]));
