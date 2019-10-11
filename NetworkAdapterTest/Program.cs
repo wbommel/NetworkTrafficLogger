@@ -13,10 +13,14 @@ class Program
 
         while (true)
         {
-            _writeStats();
+            _writeInterfaceStats();
 
-            ConsoleKeyInfo cki = Console.ReadKey();
-            if (cki.Key == ConsoleKey.X) { break; }
+
+            if (Console.KeyAvailable)
+            {
+                ConsoleKeyInfo cki = Console.ReadKey();
+                if (cki.Key == ConsoleKey.X) { break; }
+            }
 
             Thread.Sleep(1000);
         }
@@ -24,7 +28,7 @@ class Program
         //Console.ReadKey();
     }
 
-    static void _writeStats()
+    static void _writeInterfaceStats()
     {
         var nl = Environment.NewLine;
 

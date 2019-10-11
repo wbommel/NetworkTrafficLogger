@@ -211,11 +211,11 @@ namespace vobsoft.net
                 var strSQL = "INSERT INTO tblReadings (InterfaceId, LogTime, LogTimeOld, BytesReceived, BytesSent) VALUES " +
                     "(@prmInterfaceId, @prmLogTime, @prmLogTimeOld, @prmBytesReceived, @prmBytesSent)";
                 var prmInterfaceId = new SqlParameter() { Name = "@prmInterfaceId", Type = DbType.Int64 };
-                var prmLogTime = new SqlParameter() { Name = "@prmLogTime", Type = DbType.VarNumeric };
-                var prmLogTimeOld = new SqlParameter() { Name = "@prmLogTimeOld", Type = DbType.VarNumeric };
+                var prmLogTime = new SqlParameter() { Name = "@prmLogTime", Type = DbType.Int64 };
+                var prmLogTimeOld = new SqlParameter() { Name = "@prmLogTimeOld", Type = DbType.Int64 };
                 var prmLogTimeString = new SqlParameter() { Name = "@LogTimeString", Type = DbType.String };
                 var prmLogTimeString2 = new SqlParameter() { Name = "@LogTimeString2", Type = DbType.String };
-                var prmTst = new SqlParameter() { Name = "@prmTst", Type = DbType.VarNumeric };
+                var prmTst = new SqlParameter() { Name = "@prmTst", Type = DbType.Int64 };
                 var prmBytesReceived = new SqlParameter() { Name = "@prmBytesReceived", Type = DbType.Int64 };
                 var prmBytesSent = new SqlParameter() { Name = "@prmBytesSent", Type = DbType.Int64 };
 
