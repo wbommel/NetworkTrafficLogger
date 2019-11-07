@@ -25,8 +25,8 @@ namespace vobsoft.net.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\adbrvo0\\source\\repos\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTr" +
-            "affic.s3db")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\192.168.116.128\\d\\GitHub\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraff" +
+            "ic.json")]
         public string Logfile {
             get {
                 return ((string)(this["Logfile"]));
@@ -83,6 +83,19 @@ namespace vobsoft.net.Properties {
             }
             set {
                 this["Logfile4"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\192.168.116.128\\d\\GitHub\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraff" +
+            "ic.json")]
+        public string Logfile5 {
+            get {
+                return ((string)(this["Logfile5"]));
+            }
+            set {
+                this["Logfile5"] = value;
             }
         }
     }

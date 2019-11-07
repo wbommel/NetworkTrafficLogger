@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Timers;
+using vobsoft.net.model;
 using vobsoft.net.Properties;
-using Vobsoft.Csharp.Database;
 
 namespace vobsoft.net
 {
@@ -16,22 +17,19 @@ namespace vobsoft.net
         private double _timerMax = 60 * 60 * 24 * 1000; //1 day
         private Timer _tmrLoggingInterval;
 
-        private double _keepDbOpenValue = 60000; //below this, keep db connection open
-        private SqLiteHandler _sqLite;
-
         private bool _fLoggingActive = false;
 
         private long _lngMachineDBID;
-        private Dictionary<string, long> _dictInterfacesDBIDs;
+        private Dictionary<string, long> _dictInterfaceIDs;
+        private Dictionary<string, LocalNetworkInterface> _dictInterfaces;
         #endregion
 
         #region constructor
         public NetworkTrafficLogger()
         {
-            _dictInterfacesDBIDs = new Dictionary<string, long>();
-            _initDatabasefile();
+            _dictInterfaceIDs = new Dictionary<string, long>();
             _initTimer();
-            _initDatabase();
+            _initLogfile();
         }
 
         ~NetworkTrafficLogger()
@@ -42,7 +40,7 @@ namespace vobsoft.net
         #endregion
 
         #region private functions
-        private void _initDatabasefile()
+        private void _initLogfile()
         {
             //get Logfile from session
             Logfile = Settings.Default.Logfile;
@@ -50,17 +48,17 @@ namespace vobsoft.net
             //throw a lot of exceptions. :)
             if (string.IsNullOrEmpty(Logfile))
             {
-                throw new ArgumentNullException("Database file", "Argument is empty. No Logfile given.");
+                throw new ArgumentNullException("Logfile", "Argument is empty. No Logfile given.");
             }
 
             if (!Directory.Exists(Path.GetDirectoryName(Logfile)))
             {
-                throw new DirectoryNotFoundException("Database file directory not found: " + Path.GetDirectoryName(Logfile));
+                throw new DirectoryNotFoundException("_initLogfile directory not found: " + Path.GetDirectoryName(Logfile));
             }
 
             if (!File.Exists(Logfile))
             {
-                throw new FileNotFoundException("Database file not found.", Logfile);
+                _createLogFileJSON();
             }
         }
 
@@ -78,30 +76,48 @@ namespace vobsoft.net
             _tmrLoggingInterval.Elapsed += _tmrLoggingInterval_Elapsed;
         }
 
-        private void _initDatabase()
+        private void _createLogFileJSON()
         {
-            try
-            {
-                //create db handler
-                if (_tmrLoggingInterval.Interval < _keepDbOpenValue)
-                {
-                    _sqLite = new SqLiteHandler(Logfile, ConnectionBehaviour.AllwaysOpen);
-                }
-                else
-                {
-                    _sqLite = new SqLiteHandler(Logfile, ConnectionBehaviour.AutomaticOpenAndClose);
-                }
 
-                //check if MachineName, interfaces and such are already present in db an get their id's and all
-                //if not, create them
-                _createMachine();
-                _createInterfaces();
+            Machine localMachine = new Machine() { id = 1, MachineName = Environment.MachineName };
+            _lngMachineDBID = localMachine.id;
 
-            }
-            catch (Exception ex)
+
+
+            //early exit when no networking interfaces are present
+            if (!NetworkInterface.GetIsNetworkAvailable() || _lngMachineDBID == 0) { return; }
+
+            _dictInterfaceIDs.Clear();
+            _dictInterfaces.Clear();
+
+
+            //go through interface collection
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface ni in interfaces)
             {
-                throw ex;
+                prmInterfaceId.Value = ni.Id;
+
+                //check if Interface already exists
+                if (!_sqLite.HasRows(strSQL, new List<SqlParameter>() { prmMachineId, prmInterfaceId }))
+                {
+                    //create it
+                    Dictionary<string, object> dic = new Dictionary<string, object>();
+                    dic.Add("MachineId", _lngMachineDBID);
+                    dic.Add("Name", ni.Name);
+                    dic.Add("Description", ni.Description);
+                    dic.Add("InterfaceId", ni.Id);
+                    dic.Add("Type", ni.NetworkInterfaceType.ToString());
+                    dic.Add("Status", ni.OperationalStatus.ToString());
+                    dic.Add("Speed", ni.Speed);
+
+                    var affectedRows = _sqLite.WriteDataToTable("tblInterfaces", dic);
+                    if (affectedRows < 1)
+                    {
+                        throw new Exception("Something went wrong when writing data to table.");
+                    }
+                }
             }
+                JsonConvert.SerializeObject(null);
         }
 
         private void _createMachine()
