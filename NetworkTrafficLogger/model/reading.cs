@@ -8,10 +8,6 @@ namespace vobsoft.net.model
 {
     public class Reading
     {
-        public int id { get; set; }
-
-        public int InterfaceId { get; set; }
-
         public string LogTime { get; set; }
 
         public long BytesReceived { get; set; }

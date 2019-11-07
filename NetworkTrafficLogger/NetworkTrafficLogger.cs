@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Timers;
@@ -19,15 +17,12 @@ namespace vobsoft.net
 
         private bool _fLoggingActive = false;
 
-        private long _lngMachineDBID;
-        private Dictionary<string, long> _dictInterfaceIDs;
-        private Dictionary<string, LocalNetworkInterface> _dictInterfaces;
+        private Machine _localMachine;
         #endregion
 
         #region constructor
         public NetworkTrafficLogger()
         {
-            _dictInterfaceIDs = new Dictionary<string, long>();
             _initTimer();
             _initLogfile();
         }
@@ -42,8 +37,9 @@ namespace vobsoft.net
         #region private functions
         private void _initLogfile()
         {
-            //get Logfile from session
+            //get settings
             Logfile = Settings.Default.Logfile;
+            InstantWrite = Settings.Default.InstantWrite;
 
             //throw a lot of exceptions. :)
             if (string.IsNullOrEmpty(Logfile))
@@ -59,6 +55,10 @@ namespace vobsoft.net
             if (!File.Exists(Logfile))
             {
                 _createLogFileJSON();
+            }
+            else
+            {
+                _loadLogFile();
             }
         }
 
@@ -79,130 +79,46 @@ namespace vobsoft.net
         private void _createLogFileJSON()
         {
 
-            Machine localMachine = new Machine() { id = 1, MachineName = Environment.MachineName };
-            _lngMachineDBID = localMachine.id;
-
-
+            _localMachine = new Machine() { MachineName = Environment.MachineName };
 
             //early exit when no networking interfaces are present
-            if (!NetworkInterface.GetIsNetworkAvailable() || _lngMachineDBID == 0) { return; }
-
-            _dictInterfaceIDs.Clear();
-            _dictInterfaces.Clear();
-
+            if (!NetworkInterface.GetIsNetworkAvailable()) { return; }
 
             //go through interface collection
             NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface ni in interfaces)
             {
-                prmInterfaceId.Value = ni.Id;
+                //early continue if interface exists and has equal properties
+                if (_localMachine.Interfaces.ContainsKey(ni.Id) &&
+                    _localMachine.Interfaces[ni.Id].Description == ni.Description &&
+                    _localMachine.Interfaces[ni.Id].InterfaceId == ni.Id &&
+                    _localMachine.Interfaces[ni.Id].Type == ni.NetworkInterfaceType.ToString() &&
+                    _localMachine.Interfaces[ni.Id].Status == ni.OperationalStatus.ToString() &&
+                    _localMachine.Interfaces[ni.Id].Speed == ni.Speed) { continue; }
 
-                //check if Interface already exists
-                if (!_sqLite.HasRows(strSQL, new List<SqlParameter>() { prmMachineId, prmInterfaceId }))
+                //add network interface to Logfile
+                _localMachine.Interfaces.Add(ni.Id, new LocalNetworkInterface()
                 {
-                    //create it
-                    Dictionary<string, object> dic = new Dictionary<string, object>();
-                    dic.Add("MachineId", _lngMachineDBID);
-                    dic.Add("Name", ni.Name);
-                    dic.Add("Description", ni.Description);
-                    dic.Add("InterfaceId", ni.Id);
-                    dic.Add("Type", ni.NetworkInterfaceType.ToString());
-                    dic.Add("Status", ni.OperationalStatus.ToString());
-                    dic.Add("Speed", ni.Speed);
-
-                    var affectedRows = _sqLite.WriteDataToTable("tblInterfaces", dic);
-                    if (affectedRows < 1)
-                    {
-                        throw new Exception("Something went wrong when writing data to table.");
-                    }
-                }
+                    Name = ni.Name,
+                    Description = ni.Description,
+                    InterfaceId = ni.Id,
+                    Type = ni.NetworkInterfaceType.ToString(),
+                    Status = ni.OperationalStatus.ToString(),
+                    Speed = ni.Speed
+                });
             }
-                JsonConvert.SerializeObject(null);
+
+            _saveLogfile();
         }
 
-        private void _createMachine()
+        private void _saveLogfile()
         {
-            //prerequisites
-            string strSQL = "SELECT * FROM tblMachines WHERE MachineName = @prmMachineName;";
-            var prmMachineName = new SqlParameter() { Name = "@prmMachineName", Type = System.Data.DbType.String, Value = Environment.MachineName };
-
-            //check if MachineName already exists
-            if (!_sqLite.HasRows(strSQL, new List<SqlParameter>() { prmMachineName }))
-            {
-                //create it
-                Dictionary<string, object> dic = new Dictionary<string, object>();
-                dic.Add("MachineName", Environment.MachineName);
-                var affectedRows = _sqLite.WriteDataToTable("tblMachines", dic);
-                if (affectedRows < 1)
-                {
-                    throw new Exception("Something went wrong when writing data to table.");
-                }
-            }
-
-            //remember machine id in db
-            DataTable dt = _sqLite.GetDataTable(strSQL, new List<SqlParameter>() { prmMachineName });
-            if (dt.Rows.Count > 0)
-            {
-                DataRow dr = dt.Rows[0];
-                if (long.TryParse(dr["id"].ToString(), out long retval))
-                {
-                    _lngMachineDBID = retval;
-                }
-            }
+            File.WriteAllText(Logfile, JsonConvert.SerializeObject(_localMachine));
         }
 
-        private void _createInterfaces()
+        private void _loadLogFile()
         {
-            //early exit when no networking interfaces are present
-            if (!NetworkInterface.GetIsNetworkAvailable() || _lngMachineDBID == 0) { return; }
-
-            //prerequisites
-            string strSQL = "SELECT * FROM tblInterfaces WHERE MachineId = @prmMachineId AND InterfaceId = @prmInterfaceId;";
-            var prmMachineId = new SqlParameter() { Name = "@prmMachineId", Type = DbType.Int64, Value = _lngMachineDBID };
-            var prmInterfaceId = new SqlParameter() { Name = "@prmInterfaceId", Type = DbType.String };
-            _dictInterfacesDBIDs.Clear();
-
-            //go through interface collection
-            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface ni in interfaces)
-            {
-                prmInterfaceId.Value = ni.Id;
-
-                //check if Interface already exists
-                if (!_sqLite.HasRows(strSQL, new List<SqlParameter>() { prmMachineId, prmInterfaceId }))
-                {
-                    //create it
-                    Dictionary<string, object> dic = new Dictionary<string, object>();
-                    dic.Add("MachineId", _lngMachineDBID);
-                    dic.Add("Name", ni.Name);
-                    dic.Add("Description", ni.Description);
-                    dic.Add("InterfaceId", ni.Id);
-                    dic.Add("Type", ni.NetworkInterfaceType.ToString());
-                    dic.Add("Status", ni.OperationalStatus.ToString());
-                    dic.Add("Speed", ni.Speed);
-
-                    var affectedRows = _sqLite.WriteDataToTable("tblInterfaces", dic);
-                    if (affectedRows < 1)
-                    {
-                        throw new Exception("Something went wrong when writing data to table.");
-                    }
-                }
-
-                //remember ids of current interfaces in db
-                strSQL = "SELECT * FROM tblInterfaces WHERE MachineId = @prmMachineId;";
-                DataTable dt = _sqLite.GetDataTable(strSQL, new List<SqlParameter>() { prmMachineId });
-                if (dt.Rows.Count > 0)
-                {
-                    DataRow dr = dt.Rows[0];
-                    if (long.TryParse(dr["id"].ToString(), out long retval))
-                    {
-                        if (!_dictInterfacesDBIDs.ContainsKey(ni.Id))
-                        {
-                            _dictInterfacesDBIDs.Add(ni.Id, retval);
-                        }
-                    }
-                }
-            }
+            _localMachine = JsonConvert.DeserializeObject<Machine>(File.ReadAllText(Logfile));
         }
 
         private void _tmrLoggingInterval_Elapsed(object sender, ElapsedEventArgs e)
@@ -224,74 +140,21 @@ namespace vobsoft.net
                 var dtNow = DateTime.Now;
                 long tsNow = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
 
-                //prepare
-                var strSQL = "INSERT INTO tblReadings (InterfaceId, LogTime, LogTimeOld, BytesReceived, BytesSent) VALUES " +
-                    "(@prmInterfaceId, @prmLogTime, @prmLogTimeOld, @prmBytesReceived, @prmBytesSent)";
-                var prmInterfaceId = new SqlParameter() { Name = "@prmInterfaceId", Type = DbType.Int64 };
-                var prmLogTime = new SqlParameter() { Name = "@prmLogTime", Type = DbType.Int64 };
-                var prmLogTimeOld = new SqlParameter() { Name = "@prmLogTimeOld", Type = DbType.Int64 };
-                var prmLogTimeString = new SqlParameter() { Name = "@LogTimeString", Type = DbType.String };
-                var prmLogTimeString2 = new SqlParameter() { Name = "@LogTimeString2", Type = DbType.String };
-                var prmTst = new SqlParameter() { Name = "@prmTst", Type = DbType.Int64 };
-                var prmBytesReceived = new SqlParameter() { Name = "@prmBytesReceived", Type = DbType.Int64 };
-                var prmBytesSent = new SqlParameter() { Name = "@prmBytesSent", Type = DbType.Int64 };
-
                 //build log line
                 NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
                 foreach (NetworkInterface ni in interfaces)
                 {
                     //early continue
-                    if (!_dictInterfacesDBIDs.ContainsKey(ni.Id)) { continue; }
+                    if (!_localMachine.Interfaces.ContainsKey(ni.Id)) { continue; }
 
-                    long.TryParse(dtNow.ToString("yyyyMMddhhmmss"), out long lngDateNow);
-                    //create it via table schema (recommended)
-                    Dictionary<string, object> dic = new Dictionary<string, object>();
-                    dic.Add("InterfaceId", _dictInterfacesDBIDs[ni.Id]);
-                    dic.Add("LogTime", tsNow);
-                    dic.Add("LogTimeOld", tsNow);
-                    dic.Add("LogTimeString", tsNow.ToString());
-                    dic.Add("LogTimeString2", dtNow.ToString("yyyyMMddhhmmss"));
-                    dic.Add("Tst", lngDateNow);
-                    dic.Add("BytesReceived", ni.GetIPv4Statistics().BytesReceived);
-                    dic.Add("BytesSent", ni.GetIPv4Statistics().BytesSent);
+                    long.TryParse(dtNow.ToString("yyyyMMddHHmmss"), out long lngDateNow);
 
-                    var affectedRows = _sqLite.WriteDataToTable("tblReadings", dic);
-                    if (affectedRows < 1)
+                    _localMachine.Interfaces[ni.Id].Readings.Add(dtNow.ToString("yyyyMMddHHmmss"), new Reading()
                     {
-                        throw new Exception("Something went wrong when writing data to table.");
-                    }
-
-
-
-                    //create it via prepared SQL statement (2nd place recommended)
-                    //prmInterfaceId.Value = _dictInterfacesDBIDs[ni.Id];
-                    //prmLogTime.Value = tsNow;
-                    //prmLogTimeOld.Value = tsNow;
-                    //prmBytesReceived.Value = ni.GetIPv4Statistics().BytesReceived;
-                    //prmBytesSent.Value = ni.GetIPv4Statistics().BytesSent;
-                    //var lstParams = new List<SqlParameter>() {
-                    //    prmInterfaceId,
-                    //    prmLogTime,
-                    //    prmLogTimeOld,
-                    //    prmBytesReceived,
-                    //    prmBytesSent
-                    //};
-                    //if (_sqLite.ExecutePreparedStatement(strSQL, lstParams) != 1)
-                    //{
-                    //    throw new Exception("Something went wrong when writing data to table.");
-                    //}
-
-
-                    //create it manually generated SQL statement (not recommended)
-                    //strSQL = strSQL.Replace("@prmInterfaceId", _dictInterfacesDBIDs[ni.Id].ToString());
-                    //strSQL = strSQL.Replace("@prmLogTimeOld", tsNow.ToString());
-                    //strSQL = strSQL.Replace("@prmLogTime", tsNow.ToString());
-                    //strSQL = strSQL.Replace("@prmBytesReceived", ni.GetIPv4Statistics().BytesReceived.ToString());
-                    //strSQL = strSQL.Replace("@prmBytesSent", ni.GetIPv4Statistics().BytesSent.ToString());
-                    //if (_sqLite.ExecuteSqlWithRowsAffected(strSQL) != 1)
-                    //{
-                    //    throw new Exception("Something went wrong when writing data to table.");
-                    //}
+                        LogTime = dtNow.ToString("yyyyMMddHHmmss"),
+                        BytesReceived = ni.GetIPv4Statistics().BytesReceived,
+                        BytesSent = ni.GetIPv4Statistics().BytesSent
+                    });
                 }
             }
             catch (Exception ex)
@@ -301,6 +164,9 @@ namespace vobsoft.net
             }
             finally
             {
+                //instant write logfile
+                if (InstantWrite) { _saveLogfile(); }
+
                 //set inactive
                 _fLoggingActive = false;
             }
@@ -309,6 +175,8 @@ namespace vobsoft.net
 
         #region properties
         public string Logfile { get; private set; }
+
+        public bool InstantWrite { get; set; }
         #endregion
 
         #region methods
@@ -321,6 +189,7 @@ namespace vobsoft.net
         public void StopLogging()
         {
             _tmrLoggingInterval.Stop();
+            _saveLogfile();
         }
         #endregion
     }

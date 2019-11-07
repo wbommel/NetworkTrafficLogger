@@ -12,7 +12,7 @@ namespace vobsoft.net.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.2.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,8 +25,7 @@ namespace vobsoft.net.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\192.168.116.128\\d\\GitHub\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraff" +
-            "ic.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute("U:\\github\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraffic.json")]
         public string Logfile {
             get {
                 return ((string)(this["Logfile"]));
@@ -96,6 +95,30 @@ namespace vobsoft.net.Properties {
             }
             set {
                 this["Logfile5"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("U:\\github\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraffic.json")]
+        public string Logfile6 {
+            get {
+                return ((string)(this["Logfile6"]));
+            }
+            set {
+                this["Logfile6"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool InstantWrite {
+            get {
+                return ((bool)(this["InstantWrite"]));
+            }
+            set {
+                this["InstantWrite"] = value;
             }
         }
     }
