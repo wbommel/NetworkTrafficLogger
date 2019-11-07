@@ -23,13 +23,16 @@ namespace vobsoft.net.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\adbrvo0\\source\\repos\\NetworkAdapterTest\\NetworkTrafficLogger\\NetworkTraf" +
-            "fic.s3db")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\adbrvo0\\source\\repos\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTr" +
+            "affic.s3db")]
         public string Logfile {
             get {
                 return ((string)(this["Logfile"]));
+            }
+            set {
+                this["Logfile"] = value;
             }
         }
         
@@ -42,6 +45,44 @@ namespace vobsoft.net.Properties {
             }
             set {
                 this["Interval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\GitHub\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraffic.s3db")]
+        public string Logfile2 {
+            get {
+                return ((string)(this["Logfile2"]));
+            }
+            set {
+                this["Logfile2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\192.168.116.128\\d\\GitHub\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTraff" +
+            "ic.s3db")]
+        public string Logfile3 {
+            get {
+                return ((string)(this["Logfile3"]));
+            }
+            set {
+                this["Logfile3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\adbrvo0\\source\\repos\\NetworkTrafficLogger\\NetworkTrafficLogger\\NetworkTr" +
+            "affic.s3db")]
+        public string Logfile4 {
+            get {
+                return ((string)(this["Logfile4"]));
+            }
+            set {
+                this["Logfile4"] = value;
             }
         }
     }

@@ -152,7 +152,7 @@ namespace vobsoft.net
             {
                 prmInterfaceId.Value = ni.Id;
 
-                //check if MachineName already exists
+                //check if Interface already exists
                 if (!_sqLite.HasRows(strSQL, new List<SqlParameter>() { prmMachineId, prmInterfaceId }))
                 {
                     //create it
@@ -172,8 +172,9 @@ namespace vobsoft.net
                     }
                 }
 
-                //remember machine id in db
-                DataTable dt = _sqLite.GetDataTable(strSQL, new List<SqlParameter>() { prmMachineId, prmInterfaceId });
+                //remember ids of current interfaces in db
+                strSQL = "SELECT * FROM tblInterfaces WHERE MachineId = @prmMachineId;";
+                DataTable dt = _sqLite.GetDataTable(strSQL, new List<SqlParameter>() { prmMachineId });
                 if (dt.Rows.Count > 0)
                 {
                     DataRow dr = dt.Rows[0];

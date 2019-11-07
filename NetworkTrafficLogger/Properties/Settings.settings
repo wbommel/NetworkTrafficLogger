@@ -2,11 +2,20 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="vobsoft.net.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="Logfile" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">C:\Users\adbrvo0\source\repos\NetworkAdapterTest\NetworkTrafficLogger\NetworkTraffic.s3db</Value>
+    <Setting Name="Logfile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\adbrvo0\source\repos\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.s3db</Value>
     </Setting>
     <Setting Name="Interval" Type="System.Double" Scope="User">
       <Value Profile="(Default)">10000</Value>
+    </Setting>
+    <Setting Name="Logfile2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\GitHub\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.s3db</Value>
+    </Setting>
+    <Setting Name="Logfile3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\192.168.116.128\d\GitHub\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.s3db</Value>
+    </Setting>
+    <Setting Name="Logfile4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\adbrvo0\source\repos\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.s3db</Value>
     </Setting>
   </Settings>
 </SettingsFile>

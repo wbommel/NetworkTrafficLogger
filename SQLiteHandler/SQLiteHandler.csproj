@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,6 +13,8 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,14 +54,44 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.0-preview2-19525-03\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.0-preview2-19525-03\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.112.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.112.0\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.112.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.112.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.112.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.112.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.XML" />
     <Reference Include="WindowsBase" />
@@ -71,67 +104,23 @@
     <Content Include="SQLite.Interop.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\Installer.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\Installer.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Designer.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Designer.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Designer.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Interop.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\SQLite.Interop.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.EF6.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.EF6.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.EF6.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.Linq.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.Linq.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.Linq.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\test.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\test.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testef6.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testef6.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testlinq.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x64\testlinq.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\Installer.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\Installer.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Designer.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Designer.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Designer.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Interop.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\SQLite.Interop.pdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.EF6.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.EF6.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.EF6.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.Linq.dll" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.Linq.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.Linq.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.xml" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\test.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\test.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testef6.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testef6.pdb" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testlinq.exe" />
-    <Content Include="System.Data.SQLite\v1.0.92.0_x86\testlinq.pdb" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="SQLiteHandler.cd" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x64\northwindEF.db" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x64\System.Data.SQLite.dll.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x64\test.exe.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x64\testef6.exe.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x64\testlinq.exe.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x86\northwindEF.db" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x86\System.Data.SQLite.dll.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x86\test.exe.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x86\testef6.exe.config" />
-    <None Include="System.Data.SQLite\v1.0.92.0_x86\testlinq.exe.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.112.0\build\net46\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.112.0\build\net46\System.Data.SQLite.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.112.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.112.0\build\net46\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

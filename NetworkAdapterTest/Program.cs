@@ -11,10 +11,11 @@ class Program
         var t = new NetworkTrafficLogger();
         t.StartLogging();
 
+        Console.WriteLine("Logging network statistics... (press x to exit)");
+
         while (true)
         {
-            _writeInterfaceStats();
-
+            //_writeInterfaceStats();
 
             if (Console.KeyAvailable)
             {
@@ -24,6 +25,9 @@ class Program
 
             Thread.Sleep(1000);
         }
+
+        t.StopLogging();
+        
 
         //Console.ReadKey();
     }
