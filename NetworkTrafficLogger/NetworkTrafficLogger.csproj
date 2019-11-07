@@ -85,7 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="model\NetworkInterface.cs" />
+    <Compile Include="model\LocalNetworkInterface.cs" />
     <Compile Include="model\Machine.cs" />
     <Compile Include="model\Reading.cs" />
     <Compile Include="NetworkTrafficLogger.cs" />
