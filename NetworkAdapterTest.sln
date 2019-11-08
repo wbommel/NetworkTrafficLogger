@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29230.47
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkAdapterTest", "NetworkAdapterTest\NetworkAdapterTest.csproj", "{2C1866AD-675B-4501-A807-7AE14540CCC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkAdapterMonitor", "NetworkAdapterTest\NetworkAdapterMonitor.csproj", "{2C1866AD-675B-4501-A807-7AE14540CCC0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTrafficLogger", "NetworkTrafficLogger\NetworkTrafficLogger.csproj", "{2DC4D466-0CDD-41A3-A59A-60410864451B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTrafficMonitor", "NetworkTrafficMonitor\NetworkTrafficMonitor.csproj", "{AD879D53-F7D8-42A3-9A29-B32F68C8906C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,18 @@ Global
 		{2DC4D466-0CDD-41A3-A59A-60410864451B}.Release|x64.Build.0 = Release|Any CPU
 		{2DC4D466-0CDD-41A3-A59A-60410864451B}.Release|x86.ActiveCfg = Release|x86
 		{2DC4D466-0CDD-41A3-A59A-60410864451B}.Release|x86.Build.0 = Release|x86
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Release|x64.Build.0 = Release|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD879D53-F7D8-42A3-9A29-B32F68C8906C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,7 +8,7 @@ namespace vobsoft.net.model
 {
     public class Reading
     {
-        public string LogTime { get; set; }
+        public long LogTime { get; set; }
 
         public long BytesReceived { get; set; }
 

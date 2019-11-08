@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="Logfile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">U:\github\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.json</Value>
+      <Value Profile="(Default)">$(AssemblyLocation)\NetworkTraffic.json</Value>
     </Setting>
     <Setting Name="Interval" Type="System.Double" Scope="User">
       <Value Profile="(Default)">10000</Value>
@@ -24,7 +24,13 @@
       <Value Profile="(Default)">U:\github\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.json</Value>
     </Setting>
     <Setting Name="InstantWrite" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Logfile7" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\github\NetworkTrafficLogger\NetworkTrafficLogger\NetworkTraffic.json</Value>
+    </Setting>
+    <Setting Name="Logfile8" Type="System.String" Scope="User">
+      <Value Profile="(Default)">$(AssemblyLocation)\NetworkTraffic.json</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Timers;
 using vobsoft.net.model;
 using vobsoft.net.Properties;
@@ -17,7 +18,10 @@ namespace vobsoft.net
 
         private bool _fLoggingActive = false;
 
+        private TrafficData _trafficData;
         private Machine _localMachine;
+
+        private const string PATTERN_ASSEMBLY_LOCATION = "$(AssemblyLocation)";
         #endregion
 
         #region constructor
@@ -39,6 +43,12 @@ namespace vobsoft.net
         {
             //get settings
             Logfile = Settings.Default.Logfile;
+
+            if (Logfile.Contains(PATTERN_ASSEMBLY_LOCATION))
+            {
+                Logfile = Logfile.Replace(PATTERN_ASSEMBLY_LOCATION, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            }
+
             InstantWrite = Settings.Default.InstantWrite;
 
             //throw a lot of exceptions. :)
@@ -52,14 +62,12 @@ namespace vobsoft.net
                 throw new DirectoryNotFoundException("_initLogfile directory not found: " + Path.GetDirectoryName(Logfile));
             }
 
-            if (!File.Exists(Logfile))
-            {
-                _createLogFileJSON();
-            }
-            else
+            if (File.Exists(Logfile))
             {
                 _loadLogFile();
             }
+
+            _checkTrafficDataEntries();
         }
 
         private void _initTimer()
@@ -76,10 +84,21 @@ namespace vobsoft.net
             _tmrLoggingInterval.Elapsed += _tmrLoggingInterval_Elapsed;
         }
 
-        private void _createLogFileJSON()
+        private void _checkTrafficDataEntries()
         {
+            //check if traffic data is existing
+            if (_trafficData == null) { _trafficData = new TrafficData(); }
 
-            _localMachine = new Machine() { MachineName = Environment.MachineName };
+            //get machine
+            if (!_trafficData.Machines.ContainsKey(Environment.MachineName))
+            {
+                _localMachine = new Machine() { MachineName = Environment.MachineName };
+                _trafficData.Machines.Add(_localMachine.MachineName, _localMachine);
+            }
+            else
+            {
+                _localMachine = _trafficData.Machines[Environment.MachineName];
+            }
 
             //early exit when no networking interfaces are present
             if (!NetworkInterface.GetIsNetworkAvailable()) { return; }
@@ -89,12 +108,7 @@ namespace vobsoft.net
             foreach (NetworkInterface ni in interfaces)
             {
                 //early continue if interface exists and has equal properties
-                if (_localMachine.Interfaces.ContainsKey(ni.Id) &&
-                    _localMachine.Interfaces[ni.Id].Description == ni.Description &&
-                    _localMachine.Interfaces[ni.Id].InterfaceId == ni.Id &&
-                    _localMachine.Interfaces[ni.Id].Type == ni.NetworkInterfaceType.ToString() &&
-                    _localMachine.Interfaces[ni.Id].Status == ni.OperationalStatus.ToString() &&
-                    _localMachine.Interfaces[ni.Id].Speed == ni.Speed) { continue; }
+                if (_localMachine.Interfaces.ContainsKey(ni.Id)) { continue; }
 
                 //add network interface to Logfile
                 _localMachine.Interfaces.Add(ni.Id, new LocalNetworkInterface()
@@ -108,17 +122,18 @@ namespace vobsoft.net
                 });
             }
 
+            //first save
             _saveLogfile();
         }
 
         private void _saveLogfile()
         {
-            File.WriteAllText(Logfile, JsonConvert.SerializeObject(_localMachine));
+            File.WriteAllText(Logfile, JsonConvert.SerializeObject(_trafficData));
         }
 
         private void _loadLogFile()
         {
-            _localMachine = JsonConvert.DeserializeObject<Machine>(File.ReadAllText(Logfile));
+            _trafficData = JsonConvert.DeserializeObject<TrafficData>(File.ReadAllText(Logfile));
         }
 
         private void _tmrLoggingInterval_Elapsed(object sender, ElapsedEventArgs e)
@@ -149,9 +164,9 @@ namespace vobsoft.net
 
                     long.TryParse(dtNow.ToString("yyyyMMddHHmmss"), out long lngDateNow);
 
-                    _localMachine.Interfaces[ni.Id].Readings.Add(dtNow.ToString("yyyyMMddHHmmss"), new Reading()
+                    _localMachine.Interfaces[ni.Id].Readings.Add(lngDateNow, new Reading()
                     {
-                        LogTime = dtNow.ToString("yyyyMMddHHmmss"),
+                        LogTime = lngDateNow,
                         BytesReceived = ni.GetIPv4Statistics().BytesReceived,
                         BytesSent = ni.GetIPv4Statistics().BytesSent
                     });

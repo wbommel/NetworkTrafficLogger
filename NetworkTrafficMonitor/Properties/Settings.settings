@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NetworkTrafficMonitor.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Logfile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\192.168.116.128\d\GitHub\NetworkTrafficLogger\NetworkAdapterTest\bin\Debug\NetworkTraffic.json</Value>
+    </Setting>
+    <Setting Name="ShowActiveAdaptersOnly" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
