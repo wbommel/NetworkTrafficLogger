@@ -15,6 +15,9 @@ namespace NetworkTrafficMonitor
         private static Machine _localMachine;
         private static FileSystemWatcher _fsw;
 
+        private static int _exceptionCount = 0;
+        private static int _ioExceptionCount = 0;
+
         static void Main(string[] args)
         {
             //get logfile
@@ -41,11 +44,12 @@ namespace NetworkTrafficMonitor
                 _showNetworkUsage();
 
                 //init FileSystemWatcher
-                //_fsw = new FileSystemWatcher(Path.GetDirectoryName(logFile));
-                //_fsw.Changed += Fsw_Changed;
+                _fsw = new FileSystemWatcher(Path.GetDirectoryName(_logFile));
+                _fsw.Changed += Fsw_Changed;
+                _fsw.EnableRaisingEvents = true;
 
                 //different approach than FSW: remember time
-                DateTime dtLast = DateTime.Now;
+                //DateTime dtLast = DateTime.Now;
 
                 //go to wait loop
                 while (true)
@@ -59,17 +63,19 @@ namespace NetworkTrafficMonitor
                     }
 
                     //check if statistics need refresh
-                    if (DateTime.Now - dtLast >= TimeSpan.FromSeconds(5))
-                    {
-                        _reloadLogfile();
-                        _showNetworkUsage();
-                        dtLast = DateTime.Now;
-                    }
+                    //if (DateTime.Now - dtLast >= TimeSpan.FromSeconds(5))
+                    //{
+                    //    _reloadLogfile();
+                    //    _showNetworkUsage();
+                    //    dtLast = DateTime.Now;
+                    //}
 
                     Thread.Sleep(1000);
                 }
 
-                //_fsw.Changed -= Fsw_Changed;
+                _fsw.EnableRaisingEvents = false;
+                _fsw.Changed -= Fsw_Changed;
+                _fsw.Dispose();
             }
 
 
@@ -80,13 +86,33 @@ namespace NetworkTrafficMonitor
 
         private static void _reloadLogfile()
         {
-            _trafficData = JsonConvert.DeserializeObject<TrafficData>(File.ReadAllText(_logFile));
+            bool _fileWasRead = false;
+            while (!_fileWasRead)
+            {
+                try
+                {
+                    Thread.Sleep(1000);
+                    _trafficData = JsonConvert.DeserializeObject<TrafficData>(File.ReadAllText(_logFile));
+                    _fileWasRead = true;
+                }
+                catch (IOException e)
+                {
+                    _ioExceptionCount++;
+                    Console.WriteLine("IOExceptions: " + _ioExceptionCount + "    Exceptions: " + _exceptionCount);
+                }
+                catch (Exception ex)
+                {
+                    _exceptionCount++;
+                    Console.WriteLine("IOExceptions: " + _ioExceptionCount + "    Exceptions: " + _exceptionCount);
+                }
+            }
         }
 
         private static void Fsw_Changed(object sender, FileSystemEventArgs e)
         {
             if (e.Name == Path.GetFileName(_logFile))
             {
+                _reloadLogfile();
                 _showNetworkUsage();
             }
         }
@@ -106,7 +132,12 @@ namespace NetworkTrafficMonitor
             {
                 if(Settings.Default.ShowActiveAdaptersOnly && localNI.Status.ToUpper() != "UP") { continue; }
 
-                var lastReading = localNI.Readings.Values.OrderBy(x => x.LogTime).Last();
+                //var lastReading = localNI.Readings.Values.OrderBy(x => x.LogTime).Last();
+                Reading lastReading = null;
+                foreach(var r in localNI.Readings.Values)
+                {
+                    lastReading = r;
+                }
                 Console.WriteLine(string.Format(strFormat, localNI.Name, lastReading.BytesReceived, lastReading.BytesSent, lastReading.BytesReceived + lastReading.BytesSent));
             }
 

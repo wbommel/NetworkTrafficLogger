@@ -3,10 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="Logfile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\\192.168.116.128\d\GitHub\NetworkTrafficLogger\NetworkAdapterTest\bin\Debug\NetworkTraffic.json</Value>
+      <Value Profile="(Default)">U:\GitHub\NetworkTrafficLogger\NetworkAdapterTest\bin\Debug\NetworkTraffic.json</Value>
     </Setting>
     <Setting Name="ShowActiveAdaptersOnly" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Logfile1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\192.168.116.128\d\GitHub\NetworkTrafficLogger\NetworkAdapterTest\bin\Debug\NetworkTraffic.json</Value>
     </Setting>
   </Settings>
 </SettingsFile>
