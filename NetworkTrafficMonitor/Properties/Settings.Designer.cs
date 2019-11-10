@@ -25,7 +25,8 @@ namespace NetworkTrafficMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("U:\\GitHub\\NetworkTrafficLogger\\NetworkAdapterTest\\bin\\Debug\\NetworkTraffic.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Bommel\\Documents\\GitHub\\NetworkTrafficLogger\\NetworkAdapterTest\\bin\\Debu" +
+            "g\\NetworkTraffic.json")]
         public string Logfile {
             get {
                 return ((string)(this["Logfile"]));
@@ -57,6 +58,31 @@ namespace NetworkTrafficMonitor.Properties {
             }
             set {
                 this["Logfile1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Bommel\\Documents\\GitHub\\NetworkTrafficLogger\\NetworkAdapterTest\\bin\\Debu" +
+            "g")]
+        public string Logfile2 {
+            get {
+                return ((string)(this["Logfile2"]));
+            }
+            set {
+                this["Logfile2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("U:\\GitHub\\NetworkTrafficLogger\\NetworkAdapterTest\\bin\\Debug\\NetworkTraffic.json")]
+        public string Einstellung {
+            get {
+                return ((string)(this["Einstellung"]));
+            }
+            set {
+                this["Einstellung"] = value;
             }
         }
     }

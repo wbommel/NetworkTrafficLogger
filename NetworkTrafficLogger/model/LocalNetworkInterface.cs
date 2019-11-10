@@ -16,6 +16,6 @@ namespace vobsoft.net.model
 
         public long Speed { get; set; }
 
-        public Dictionary<long, Reading> Readings { get; set; } = new Dictionary<long, Reading>();
+        public SortedDictionary<long, Reading> Readings { get; set; } = new SortedDictionary<long, Reading>();
     }
 }
