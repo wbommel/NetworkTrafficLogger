@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using vobsoft.net.model;
 
@@ -22,6 +23,10 @@ namespace NetworkTrafficMonitor
         {
             //get logfile
             _logFile = Settings.Default.Logfile;
+
+#if DEBUG
+            _logFile = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..\NetworkAdapterTest\bin\Debug\NetworkTraffic.json";
+#endif
             if (!File.Exists(_logFile))
             {
                 Console.WriteLine("Logfile not found. Exitting.");
@@ -130,13 +135,16 @@ namespace NetworkTrafficMonitor
 
             foreach (var localNI in _localMachine.Interfaces.Values)
             {
-                if(Settings.Default.ShowActiveAdaptersOnly && localNI.Status.ToUpper() != "UP") { continue; }
+                if (Settings.Default.ShowActiveAdaptersOnly && localNI.Status.ToUpper() != "UP") { continue; }
 
-                //var lastReading = localNI.Readings.Values.OrderBy(x => x.LogTime).Last();
-                Reading lastReading = null;
-                foreach(var r in localNI.Readings.Values)
+                var lastReading = localNI.Readings.Values.OrderBy(x => x.LogTime).First();
+                lastReading = new Reading() { LogTime = 0 };
+                foreach (var r in localNI.Readings.Values)
                 {
-                    lastReading = r;
+                    if (r.LogTime > lastReading.LogTime)
+                    {
+                        lastReading = r;
+                    }
                 }
                 Console.WriteLine(string.Format(strFormat, localNI.Name, lastReading.BytesReceived, lastReading.BytesSent, lastReading.BytesReceived + lastReading.BytesSent));
             }
