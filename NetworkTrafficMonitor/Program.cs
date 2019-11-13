@@ -96,6 +96,7 @@ namespace NetworkTrafficMonitor
             {
                 try
                 {
+                    _trafficData = null;
                     Thread.Sleep(1000);
                     _trafficData = JsonConvert.DeserializeObject<TrafficData>(File.ReadAllText(_logFile));
                     _fileWasRead = true;
@@ -137,8 +138,8 @@ namespace NetworkTrafficMonitor
             {
                 if (Settings.Default.ShowActiveAdaptersOnly && localNI.Status.ToUpper() != "UP") { continue; }
 
-                var lastReading = localNI.Readings.Values.OrderBy(x => x.LogTime).First();
-                lastReading = new Reading() { LogTime = 0 };
+                //var lastReading = localNI.Readings.Values.OrderBy(x => x.LogTime).Last();
+                var lastReading = new Reading() { LogTime = 0 };
                 foreach (var r in localNI.Readings.Values)
                 {
                     if (r.LogTime > lastReading.LogTime)
