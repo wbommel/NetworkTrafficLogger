@@ -2,6 +2,7 @@
 using NetworkTrafficMonitor.Properties;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -127,6 +128,41 @@ namespace NetworkTrafficMonitor
 
             return lastReading;
         }
+
+        private Dictionary<long, DayReading> _getDailyUsage(LocalNetworkInterface lni)
+        {
+            var retVal = new Dictionary<long, DayReading>();
+            long zwischenReceived = 0;
+            long zwischenSent = 0;
+            long day;
+            //var lastReading = new DayReading() { Day = 0, BytesReceived = 0, BytesSent = 0 };
+
+            foreach (var reading in lni.Readings.Values)
+            {
+                //get day information and see if lastReading is still ok
+                day = long.Parse(reading.LogTime.ToString().Substring(0, 8));
+                //if (lastReading.Day != day) { lastReading = new DayReading() { Day = day, BytesReceived = reading.BytesReceived, BytesSent = reading.BytesSent }; }
+
+                if (!retVal.ContainsKey(day))
+                {
+                    retVal.Add(day, new DayReading() { Day = day, BytesReceived = reading.BytesReceived, BytesSent = reading.BytesSent });
+                }
+                else
+                {
+                    //potentially set zwischen values
+                    if (reading.BytesReceived < retVal[day].BytesReceived)
+                    {
+                        zwischenReceived = retVal[day].BytesReceived;
+                        zwischenSent = retVal[day].BytesSent;
+                    }
+
+                    retVal[day].BytesReceived = reading.BytesReceived + zwischenReceived;
+                    retVal[day].BytesSent = reading.BytesSent + zwischenSent;
+                }
+            }
+
+            return retVal;
+        }
         #endregion
 
         #region properties
@@ -137,8 +173,18 @@ namespace NetworkTrafficMonitor
                 StringBuilder sb = new StringBuilder();
                 foreach (var ni in _localMachine.Interfaces.Values)
                 {
+                    //early continue
+                    if (ni.Status=="Down") { continue; }
+
                     Reading r = _getNewestReading(ni);
                     sb.Append(ni.Name + " - Readings: " + ni.Readings.Count + "   Bytes Received: " + r.BytesReceived + Environment.NewLine);
+
+                    var dayReadings = _getDailyUsage(ni);
+                    foreach (var dr in dayReadings.Values)
+                    {
+                        long usage = dr.BytesReceived + dr.BytesSent;
+                        sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
+                    }
                 }
                 return sb.ToString();
             }
