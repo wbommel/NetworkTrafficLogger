@@ -1,11 +1,9 @@
 ﻿using NetworkTrafficMonitor.Properties;
-using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
-using vobsoft.net.model;
+using vobsoft.net;
 
 namespace NetworkTrafficMonitor
 {

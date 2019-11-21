@@ -1,16 +1,14 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using NetworkTrafficMonitor.Properties;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using vobsoft.net.model;
 
-namespace NetworkTrafficMonitor
+namespace vobsoft.net
 {
     public class NetworkTrafficWatcher : IDisposable
     {
@@ -189,6 +187,8 @@ namespace NetworkTrafficMonitor
                 return sb.ToString();
             }
         }
+
+        public Machine LocalMachine { get { return _localMachine; } }
         #endregion
 
         #region methods
