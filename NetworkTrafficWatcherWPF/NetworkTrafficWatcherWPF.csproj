@@ -66,12 +66,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AvailableInterfacesItem.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -99,9 +101,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NetworkTrafficLogger\NetworkTrafficLogger.csproj">
+      <Project>{2DC4D466-0CDD-41A3-A59A-60410864451B}</Project>
+      <Name>NetworkTrafficLogger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NetworkTrafficWatcherModel\NetworkTrafficWatcherModel.csproj">
       <Project>{45bdcede-03ef-47f7-99dc-1be17467ce0f}</Project>
       <Name>NetworkTrafficWatcherModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ViewModelBase\ViewModelBase.csproj">
+      <Project>{251b4d74-7902-4930-a5f3-15a3728c754f}</Project>
+      <Name>ViewModelBase</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

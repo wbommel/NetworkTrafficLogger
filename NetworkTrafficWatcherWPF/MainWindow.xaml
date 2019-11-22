@@ -4,13 +4,31 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkTrafficWatcherWPF"
+        xmlns:VM="clr-namespace:NetworkTrafficWatcherWPF.ViewModels"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <!--DataContext="{StaticResource dcMainWindowViewModel}"-->
+    <!--<Window.DataContext>
+        <VM:MainWindowViewModel/>
+    </Window.DataContext>-->
     <Grid>
         <Label Content="Available Network Interfaces:" HorizontalAlignment="Left" Margin="20,19,0,0" VerticalAlignment="Top" Width="165"/>
-        <ComboBox x:Name="cboNetworkInterfaces" HorizontalAlignment="Left" Margin="200,20,0,0" VerticalAlignment="Top" Width="360"/>
-        
-        <Label x:Name="lblResult" Content="Label" Margin="25,55,22,29"/>
+        <ComboBox 
+            HorizontalAlignment="Left" 
+            Margin="200,20,0,0" 
+            VerticalAlignment="Top" 
+            Width="360"
+            ItemsSource="{Binding AvailableInterfaces}"
+            SelectedItem="{Binding SelectedInterface}"
+            DisplayMemberPath="Name"
+            />
+
+        <Label Content="{Binding Results}" Margin="25,55,567,34"/>
+
+        <Label Content="{Binding TodaysGiB}" HorizontalAlignment="Left" Margin="233,130,0,0" VerticalAlignment="Top" Height="95" Width="550" FontSize="72" FontWeight="Bold"/>
+
+        <Label Content="{Binding TodaysMiB}" HorizontalAlignment="Left" Margin="235,235,0,0" VerticalAlignment="Top" Height="95" Width="548" FontSize="72" FontWeight="Bold"/>
+        <Label Content="Heutiger Verbrauch:" HorizontalAlignment="Left" Height="50" Margin="255,65,0,0" VerticalAlignment="Top" Width="355" FontSize="24"/>
 
     </Grid>
 </Window>

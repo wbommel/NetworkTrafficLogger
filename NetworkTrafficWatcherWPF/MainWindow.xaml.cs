@@ -1,4 +1,5 @@
 ﻿using NetworkTrafficWatcherWPF.Properties;
+using NetworkTrafficWatcherWPF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,26 +24,11 @@ namespace NetworkTrafficWatcherWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        string _logFile;
-
         public MainWindow()
         {
             InitializeComponent();
 
-            //get logfile
-            _logFile = Settings.Default.Logfile;
-
-#if DEBUG
-            _logFile = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..\NetworkAdapterTest\bin\Debug\NetworkTraffic.json";
-#endif
-            using(var ntw=new NetworkTrafficWatcher())
-            {
-                ntw.ReadTrafficData(_logFile);
-                lblResult.Content = ntw.TestOutput;
-            }
+            DataContext = new MainWindowViewModel();
         }
-
-
-
     }
 }

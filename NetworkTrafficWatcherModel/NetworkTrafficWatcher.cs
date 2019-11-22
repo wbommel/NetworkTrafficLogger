@@ -75,6 +75,12 @@ namespace vobsoft.net
         #region private functions
         private void _reloadLogfile()
         {
+            if (!File.Exists(_fileName))
+            {
+                OnFileError(new FileErrorEventArgs() { Type = FileErrorEventArgs.EventType.FileNotFound, LastMessage = "File not found: '" + _fileName + "'" });
+                return;
+            }
+
             bool _fileWasRead = false;
             int _timeout = 0;
 
@@ -172,7 +178,7 @@ namespace vobsoft.net
                 foreach (var ni in _localMachine.Interfaces.Values)
                 {
                     //early continue
-                    if (ni.Status=="Down") { continue; }
+                    if (ni.Status == "Down") { continue; }
 
                     Reading r = _getNewestReading(ni);
                     sb.Append(ni.Name + " - Readings: " + ni.Readings.Count + "   Bytes Received: " + r.BytesReceived + Environment.NewLine);
@@ -186,6 +192,68 @@ namespace vobsoft.net
                 }
                 return sb.ToString();
             }
+        }
+
+        public string GetDailyUsagesOfInterface(string interfaceId)
+        {
+            //prepare vars
+            var result = string.Empty;
+
+            //read data
+            _reloadLogfile();
+
+            foreach (var ni in _localMachine.Interfaces.Values)
+            {
+                //early continue
+                if (ni.InterfaceId != interfaceId) { continue; }
+
+                //get data
+                StringBuilder sb = new StringBuilder();
+                var dayReadings = _getDailyUsage(ni);
+                foreach (var dr in dayReadings.Values)
+                {
+                    long usage = dr.BytesReceived + dr.BytesSent;
+                    sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
+                }
+
+                result = sb.ToString();
+
+                break;
+            }
+
+            return result;
+        }
+
+        public long GetTodaysUsageOfInterface(string interfaceId)
+        {
+            //prepare vars
+            var result = (long)0;
+            var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
+
+            //read data
+            _reloadLogfile();
+
+            foreach (var ni in _localMachine.Interfaces.Values)
+            {
+                //early continue
+                if (ni.InterfaceId != interfaceId) { continue; }
+
+                //get data
+                var dayReadings = _getDailyUsage(ni);
+                foreach (var dr in dayReadings.Values)
+                {
+                    //early continue
+                    if (dr.Day != today) { continue; }
+
+                    result= dr.BytesReceived + dr.BytesSent;
+
+                    break;
+                }
+
+                break;
+            }
+
+            return result;
         }
 
         public Machine LocalMachine { get { return _localMachine; } }
@@ -207,15 +275,16 @@ namespace vobsoft.net
     {
         public enum EventType
         {
+            FileNotFound,
             Timeout,
             IOException,
             Exception
         }
 
         public EventType Type { get; set; }
-        public int IOExceptionCount { get; set; }
-        public int ExceptionCount { get; set; }
-        public string LastMessage { get; set; }
+        public int IOExceptionCount { get; set; } = 0;
+        public int ExceptionCount { get; set; } = 0;
+        public string LastMessage { get; set; } = string.Empty;
     }
     #endregion
 }
