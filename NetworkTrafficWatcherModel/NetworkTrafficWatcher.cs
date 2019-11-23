@@ -245,9 +245,54 @@ namespace vobsoft.net
                     //early continue
                     if (dr.Day != today) { continue; }
 
-                    result= dr.BytesReceived + dr.BytesSent;
+                    result = dr.BytesReceived + dr.BytesSent;
 
                     break;
+                }
+
+                break;
+            }
+
+            return result;
+        }
+
+        public long GetUsageOfInterfaceSince(string interfaceId, long usageSinceDay)
+        {
+            //prepare vars
+            var result = (long)0;
+            var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
+            long seekDay;
+            if (usageSinceDay <= DateTime.Now.Day)
+            {
+                seekDay = long.Parse(
+                    DateTime.Now.Year.ToString() + 
+                    DateTime.Now.Month.ToString("00") +
+                    (DateTime.Now.Day - (DateTime.Now.Day - usageSinceDay)).ToString("00"));
+            }
+            else
+            {
+                seekDay= long.Parse(
+                    DateTime.Now.Year.ToString() + 
+                    DateTime.Now.AddMonths(-1).Month.ToString("00") +
+                    usageSinceDay.ToString("00"));
+            }
+
+            //read data
+            _reloadLogfile();
+
+            foreach (var ni in _localMachine.Interfaces.Values)
+            {
+                //early continue
+                if (ni.InterfaceId != interfaceId) { continue; }
+
+                //get data
+                var dayReadings = _getDailyUsage(ni);
+                foreach (var dr in dayReadings.Values)
+                {
+                    //early continue
+                    if (dr.Day < seekDay) { continue; }
+
+                    result += dr.BytesReceived + dr.BytesSent;
                 }
 
                 break;
