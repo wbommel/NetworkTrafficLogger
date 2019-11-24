@@ -6,29 +6,42 @@
         xmlns:local="clr-namespace:NetworkTrafficWatcherWPF"
         xmlns:VM="clr-namespace:NetworkTrafficWatcherWPF.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="1100">
     <!--DataContext="{StaticResource dcMainWindowViewModel}"-->
     <!--<Window.DataContext>
         <VM:MainWindowViewModel/>
     </Window.DataContext>-->
     <Grid>
-        <Label Content="Available Network Interfaces:" HorizontalAlignment="Left" Margin="20,19,0,0" VerticalAlignment="Top" Width="165"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Available Network Interfaces:" HorizontalAlignment="Left" Margin="20,19,0,0" VerticalAlignment="Top" Width="165" Grid.ColumnSpan="2" Height="26"/>
         <ComboBox 
-            HorizontalAlignment="Left" 
-            Margin="200,20,0,0" 
-            VerticalAlignment="Top" 
-            Width="360"
+            Margin="190,19,9.6,0" 
+            VerticalAlignment="Top"
             ItemsSource="{Binding AvailableInterfaces}"
             SelectedItem="{Binding SelectedInterface}"
-            DisplayMemberPath="Name"
+            DisplayMemberPath="Name" Height="22" Grid.ColumnSpan="2"
             />
 
-        <Label Content="{Binding Results}" Margin="25,55,567,34"/>
 
-        <Label Content="{Binding TodaysGiB}" HorizontalAlignment="Left" Margin="233,130,0,0" VerticalAlignment="Top" Height="95" Width="550" FontSize="72" FontWeight="Bold"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Heutiger Verbrauch:" Height="42" Margin="10,10,9.8,0" HorizontalContentAlignment="Right"  VerticalAlignment="Top" FontSize="24" />
+        <Label Grid.Row="1" Grid.Column="0" Content="{Binding TodaysGiB}" Margin="10,57,167.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="0" Content="GiB" Margin="0,57,10.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
+        <Label Grid.Row="1" Grid.Column="0" Content="{Binding TodaysMiB}" Margin="10,157,167.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="0" Content="MiB" Margin="0,157,10.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
 
-        <Label Content="{Binding TodaysMiB}" HorizontalAlignment="Left" Margin="235,235,0,0" VerticalAlignment="Top" Height="95" Width="548" FontSize="72" FontWeight="Bold"/>
-        <Label Content="Heutiger Verbrauch:" HorizontalAlignment="Left" Height="50" Margin="255,65,0,0" VerticalAlignment="Top" Width="355" FontSize="24"/>
+        <Label Grid.Row="1" Grid.Column="1" Content="Verbrauch Seit dem letzten ...:" Height="42" Margin="9.8,10,9.6,0" HorizontalContentAlignment="Right"  VerticalAlignment="Top" FontSize="24" />
+        <Label Grid.Row="1" Grid.Column="1" Content="{Binding GiBSince}" Margin="9.8,57,166.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="1" Content="GiB" Margin="0,57,9.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
+        <Label Grid.Row="1" Grid.Column="1" Content="{Binding MiBSince}" Margin="9.8,157,166.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="1" Content="MiB" Margin="0,157,9.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
 
     </Grid>
 </Window>

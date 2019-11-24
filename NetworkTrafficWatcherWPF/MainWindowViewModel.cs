@@ -68,6 +68,7 @@ namespace NetworkTrafficWatcherWPF.ViewModels
         {
             //_getDailyUsagesData();
             _getTodaysUsageData();
+            _getUsageDataSince();
         }
 
         private void _getDailyUsagesData()
@@ -90,8 +91,24 @@ namespace NetworkTrafficWatcherWPF.ViewModels
                 long todaysUsage = ntw.GetTodaysUsageOfInterface(SelectedInterface.InterfaceId);
                 Results = todaysUsage.ToString("N0");
 
-                TodaysGiB = ((double)todaysUsage / 1000000000).ToString("#,##0.00") + " GiB";
-                TodaysMiB = ((double)todaysUsage / 1000000).ToString("#,##0.00") + " MiB";
+                TodaysGiB = ((double)todaysUsage / 1000000000).ToString("#,##0.00");// + " GiB";
+                TodaysMiB = ((double)todaysUsage / 1000000).ToString("#,##0.00");// + " MiB";
+            }
+        }
+
+        private void _getUsageDataSince()
+        {
+            //early exit
+            if (SelectedInterface == null) { return; }
+
+            using (var ntw = new NetworkTrafficWatcher())
+            {
+                ntw.ReadTrafficData(_logFile);
+                long UsageSince = ntw.GetUsageOfInterfaceSince(SelectedInterface.InterfaceId, 5);
+                Results = UsageSince.ToString("N0");
+
+                GiBSince = ((double)UsageSince / 1000000000).ToString("#,##0.00");// + " GiB";
+                MiBSince = ((double)UsageSince / 1000000).ToString("#,##0.00");// + " MiB";
             }
         }
         #endregion
@@ -149,6 +166,28 @@ namespace NetworkTrafficWatcherWPF.ViewModels
             {
                 _todaysMiB = value;
                 OnPropertyChanged("TodaysMiB");
+            }
+        }
+
+        private string _GiBSince;
+        public string GiBSince
+        {
+            get { return _GiBSince; }
+            set
+            {
+                _GiBSince = value;
+                OnPropertyChanged("GiBSince");
+            }
+        }
+
+        private string _MiBSince;
+        public string MiBSince
+        {
+            get { return _MiBSince; }
+            set
+            {
+                _MiBSince = value;
+                OnPropertyChanged("MiBSince");
             }
         }
         #endregion
