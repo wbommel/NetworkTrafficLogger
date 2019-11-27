@@ -66,9 +66,17 @@ namespace NetworkTrafficWatcherWPF.ViewModels
 
         private void _showSlectedData()
         {
-            //_getDailyUsagesData();
-            _getTodaysUsageData();
-            _getUsageDataSince();
+            //early exit
+            if (SelectedInterface == null) { return; }
+
+            using (var ntw = new NetworkTrafficWatcher())
+            {
+                ntw.ReadTrafficData(_logFile);
+
+                //_getDailyUsagesData();
+                _getTodaysUsageData(ntw);
+                _getUsageDataSince(ntw);
+            }
         }
 
         private void _getDailyUsagesData()
@@ -80,36 +88,22 @@ namespace NetworkTrafficWatcherWPF.ViewModels
             }
         }
 
-        private void _getTodaysUsageData()
+        private void _getTodaysUsageData(NetworkTrafficWatcher ntw)
         {
-            //early exit
-            if (SelectedInterface == null) { return; }
+            long todaysUsage = ntw.GetTodaysUsageOfInterface(SelectedInterface.InterfaceId);
+            Results = todaysUsage.ToString("N0");
 
-            using (var ntw = new NetworkTrafficWatcher())
-            {
-                ntw.ReadTrafficData(_logFile);
-                long todaysUsage = ntw.GetTodaysUsageOfInterface(SelectedInterface.InterfaceId);
-                Results = todaysUsage.ToString("N0");
-
-                TodaysGiB = ((double)todaysUsage / 1000000000).ToString("#,##0.00");// + " GiB";
-                TodaysMiB = ((double)todaysUsage / 1000000).ToString("#,##0.00");// + " MiB";
-            }
+            TodaysGiB = ((double)todaysUsage / 1000000000).ToString("#,##0.00");// + " GiB";
+            TodaysMiB = ((double)todaysUsage / 1000000).ToString("#,##0.00");// + " MiB";
         }
 
-        private void _getUsageDataSince()
+        private void _getUsageDataSince(NetworkTrafficWatcher ntw)
         {
-            //early exit
-            if (SelectedInterface == null) { return; }
+            long UsageSince = ntw.GetUsageOfInterfaceSince(SelectedInterface.InterfaceId, 5);
+            Results = UsageSince.ToString("N0");
 
-            using (var ntw = new NetworkTrafficWatcher())
-            {
-                ntw.ReadTrafficData(_logFile);
-                long UsageSince = ntw.GetUsageOfInterfaceSince(SelectedInterface.InterfaceId, 5);
-                Results = UsageSince.ToString("N0");
-
-                GiBSince = ((double)UsageSince / 1000000000).ToString("#,##0.00");// + " GiB";
-                MiBSince = ((double)UsageSince / 1000000).ToString("#,##0.00");// + " MiB";
-            }
+            GiBSince = ((double)UsageSince / 1000000000).ToString("#,##0.00");// + " GiB";
+            MiBSince = ((double)UsageSince / 1000000).ToString("#,##0.00");// + " MiB";
         }
         #endregion
 
