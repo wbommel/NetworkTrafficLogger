@@ -145,19 +145,20 @@ namespace vobsoft.net
             {
                 //get day information and see if lastReading is still ok
                 day = long.Parse(reading.LogTime.ToString().Substring(0, 8));
-                //if (lastReading.Day != day) { lastReading = new DayReading() { Day = day, BytesReceived = reading.BytesReceived, BytesSent = reading.BytesSent }; }
 
                 if (!retVal.ContainsKey(day))
                 {
                     retVal.Add(day, new DayReading() { Day = day, BytesReceived = reading.BytesReceived, BytesSent = reading.BytesSent });
+                    zwischenReceived = 0;
+                    zwischenSent = 0;
                 }
                 else
                 {
                     //potentially set zwischen values
-                    if (reading.BytesReceived < retVal[day].BytesReceived)
+                    if (reading.BytesReceived + zwischenReceived < retVal[day].BytesReceived)
                     {
-                        zwischenReceived = retVal[day].BytesReceived;
-                        zwischenSent = retVal[day].BytesSent;
+                        zwischenReceived += retVal[day].BytesReceived;
+                        zwischenSent += retVal[day].BytesSent;
                     }
 
                     retVal[day].BytesReceived = reading.BytesReceived + zwischenReceived;
@@ -265,14 +266,14 @@ namespace vobsoft.net
             if (usageSinceDay <= DateTime.Now.Day)
             {
                 seekDay = long.Parse(
-                    DateTime.Now.Year.ToString() + 
+                    DateTime.Now.Year.ToString() +
                     DateTime.Now.Month.ToString("00") +
                     (DateTime.Now.Day - (DateTime.Now.Day - usageSinceDay)).ToString("00"));
             }
             else
             {
-                seekDay= long.Parse(
-                    DateTime.Now.Year.ToString() + 
+                seekDay = long.Parse(
+                    DateTime.Now.Year.ToString() +
                     DateTime.Now.AddMonths(-1).Month.ToString("00") +
                     usageSinceDay.ToString("00"));
             }
