@@ -3,13 +3,17 @@ using System.IO;
 using System.Net.NetworkInformation;
 using System.Threading;
 using vobsoft.net;
+using vobsoft.net.LiteDBLogger;
 
 class Program
 {
     static void Main(string[] args)
     {
-        var t = new NetworkTrafficLogger();
-        t.StartLogging();
+        var ntlJSON = new NetworkTrafficLogger();
+        ntlJSON.StartLogging();
+
+        var ntlLiteDB = new NetworkTrafficLoggerLiteDB();
+        ntlLiteDB.StartLogging();
 
         Console.WriteLine("Logging network statistics... (press x to exit)");
 
@@ -26,7 +30,8 @@ class Program
             Thread.Sleep(1000);
         }
 
-        t.StopLogging();
+        ntlLiteDB.StopLogging();
+        ntlJSON.StopLogging();
         
 
         //Console.ReadKey();
