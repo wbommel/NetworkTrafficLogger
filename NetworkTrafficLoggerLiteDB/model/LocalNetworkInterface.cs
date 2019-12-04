@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using LiteDB;
 
 namespace vobsoft.net.LiteDBLogger.model
 {
@@ -12,7 +12,7 @@ namespace vobsoft.net.LiteDBLogger.model
 
         public string Description { get; set; }
 
-        public string InterfaceId { get; set; }
+        public string InterfaceGUID { get; set; }
 
         public string Type { get; set; }
 
@@ -20,6 +20,6 @@ namespace vobsoft.net.LiteDBLogger.model
 
         public long Speed { get; set; }
 
-        public SortedDictionary<long, Reading> Readings { get; set; } = new SortedDictionary<long, Reading>();
+        public LiteCollection<Reading> Readings { get; set; }
     }
 }

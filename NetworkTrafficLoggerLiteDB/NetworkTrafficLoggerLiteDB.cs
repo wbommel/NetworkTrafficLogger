@@ -18,8 +18,8 @@ namespace vobsoft.net.LiteDBLogger
 
         private bool _fLoggingActive = false;
 
-        private LiteCollection<Machine> _trafficData;
-        private Machine _localMachine;
+        //private LiteCollection<Machine> _allMachines;
+        //private Machine _localMachine;
 
         private const string PATTERN_ASSEMBLY_LOCATION = "$(AssemblyLocation)";
         #endregion
@@ -81,49 +81,66 @@ namespace vobsoft.net.LiteDBLogger
         {
             using (var db = new LiteDatabase(Logfile))
             {
-                //get TrafficData of db
-                if (_trafficData == null) { _trafficData = db.GetCollection<Machine>("machines"); }
-
-                //get machine
-                if (!_trafficData.Exists(x => x.MachineName == Environment.MachineName))
-                {
-                    _localMachine = new Machine() { MachineName = Environment.MachineName };
-                    _trafficData.Insert(_localMachine);
-                }
-                else
-                {
-                    _localMachine = _trafficData.FindOne(x => x.MachineName == Environment.MachineName);
-                }
+                //fetch machine or create it
+                var localMachine = _fetchLocalMachine(db);
 
                 //early exit when no networking interfaces are present
                 if (!NetworkInterface.GetIsNetworkAvailable()) { return; }
 
                 //load interfaces
-                _localMachine.Interfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
+                //localMachine.Interfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
+                _fetchInterfaces(db, localMachine);
 
                 //go through interface collection
                 NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
                 foreach (NetworkInterface ni in interfaces)
                 {
                     //early continue if interface exists and has equal properties
-                    if (_localMachine.Interfaces.Exists(x => x.InterfaceId == ni.Id)) { continue; }
+                    if (localMachine.Interfaces.Exists(x => x.InterfaceGUID == ni.Id)) { continue; }
 
-                    //add network interface to Logfile
-                    _localMachine.Interfaces.Insert(new LocalNetworkInterface()
+                    //insert network interface to db
+                    localMachine.Interfaces.Insert(new LocalNetworkInterface()
                     {
-                        MachineId = _localMachine.Id,
+                        MachineId = localMachine.Id,
                         Name = ni.Name,
                         Description = ni.Description,
-                        InterfaceId = ni.Id,
+                        InterfaceGUID = ni.Id,
                         Type = ni.NetworkInterfaceType.ToString(),
                         Status = ni.OperationalStatus.ToString(),
                         Speed = ni.Speed
                     });
                 }
-
-                //update
-                _trafficData.Update(_localMachine);
             }
+        }
+
+        private Machine _fetchLocalMachine(LiteDatabase db)
+        {
+            //get TrafficData of db
+            var allMachines = db.GetCollection<Machine>("machines");
+            Machine localMachine;
+
+            //get machine
+            if (!allMachines.Exists(x => x.MachineName == Environment.MachineName))
+            {
+                localMachine = new Machine() { MachineName = Environment.MachineName };
+                allMachines.Insert(localMachine);
+            }
+            else
+            {
+                localMachine = allMachines.FindOne(x => x.MachineName == Environment.MachineName);
+            }
+
+            return localMachine;
+        }
+
+        private void _fetchInterfaces(LiteDatabase db, Machine machine)
+        {
+            machine.Interfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
+        }
+
+        private void _fetchReadings(LiteDatabase db, LocalNetworkInterface lni)
+        {
+            lni.Readings = db.GetCollection<Reading>("readings");
         }
 
         private void _tmrLoggingInterval_Elapsed(object sender, ElapsedEventArgs e)
@@ -138,29 +155,39 @@ namespace vobsoft.net.LiteDBLogger
 
             try
             {
-                //early exit when no networking interfaces are present
-                if (!NetworkInterface.GetIsNetworkAvailable()) { return; }
-
-                //get current time
-                var dtNow = DateTime.Now;
-                long tsNow = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-
-                //build log line
-                NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-                foreach (NetworkInterface ni in interfaces)
+                using (var db = new LiteDatabase(Logfile))
                 {
-                    //early continue
-                    if (!_localMachine.Interfaces.Exists(x => x.InterfaceId == ni.Id)) { continue; }
+                    //early exit when no networking interfaces are present
+                    if (!NetworkInterface.GetIsNetworkAvailable()) { return; }
 
-                    long.TryParse(dtNow.ToString("yyyyMMddHHmmss"), out long lngDateNow);
+                    var localMachine = _fetchLocalMachine(db);
+                    _fetchInterfaces(db, localMachine);
+                    var dbInterfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
+                    var dbReadings= db.GetCollection<Reading>("readings");
 
-                    //_localMachine.Interfaces.FindOne(x => x.InterfaceId == ni.Id).Readings
-                    //_localMachine.Interfaces[ni.Id].Readings.Add(lngDateNow, new Reading()
-                    //{
-                    //    LogTime = lngDateNow,
-                    //    BytesReceived = ni.GetIPv4Statistics().BytesReceived,
-                    //    BytesSent = ni.GetIPv4Statistics().BytesSent
-                    //});
+                    //get current time
+                    var dtNow = DateTime.Now;
+                    long tsNow = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+
+                    //build log line
+                    NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+                    foreach (NetworkInterface ni in interfaces)
+                    {
+                        //early continue
+                        //if (!localMachine.Interfaces.Exists(x => x.InterfaceGUID == ni.Id)) { continue; }
+                        //var lni = localMachine.Interfaces.FindOne(x => x.InterfaceGUID == ni.Id);
+                        var lni = dbInterfaces.FindOne(x => x.InterfaceGUID == ni.Id);
+
+                        long.TryParse(dtNow.ToString("yyyyMMddHHmmss"), out long lngDateNow);
+
+                        dbReadings.Insert(new Reading()
+                        {
+                            InterfaceId = lni.Id,
+                            LogTime = lngDateNow,
+                            BytesReceived = ni.GetIPv4Statistics().BytesReceived,
+                            BytesSent = ni.GetIPv4Statistics().BytesSent
+                        });
+                    }
                 }
             }
             catch (Exception ex)

@@ -10,6 +10,8 @@ namespace vobsoft.net.LiteDBLogger.model
     {
         public int Id { get; set; }
 
+        public int InterfaceId { get; set; }
+
         public long LogTime { get; set; }
 
         public long BytesReceived { get; set; }
