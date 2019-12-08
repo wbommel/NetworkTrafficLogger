@@ -84,6 +84,7 @@ namespace JSON2LiteDB
                                 BytesReceived = reading.BytesReceived,
                                 BytesSent = reading.BytesSent
                             };
+                            dbReadings.Insert(newReading);
 
                             Console.WriteLine(format, newReading.Id, newReading.LogTime, newReading.BytesSent + newReading.BytesReceived);
                         }
