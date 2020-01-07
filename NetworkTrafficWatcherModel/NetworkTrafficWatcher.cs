@@ -21,17 +21,13 @@ namespace vobsoft.net
         private int _exceptionCount = 0;
 
         #region events
-        #endregion
         protected virtual void OnFileError(FileErrorEventArgs e)
         {
-            EventHandler<FileErrorEventArgs> handler = FileError;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            FileError?.Invoke(this, e);
         }
 
         public event EventHandler<FileErrorEventArgs> FileError;
+        #endregion
         #endregion
 
         #region constructor
