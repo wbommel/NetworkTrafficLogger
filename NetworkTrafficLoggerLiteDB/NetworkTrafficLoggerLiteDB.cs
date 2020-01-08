@@ -57,7 +57,7 @@ namespace vobsoft.net.LiteDBLogger
 
             if (!Directory.Exists(Path.GetDirectoryName(Logfile)))
             {
-                throw new DirectoryNotFoundException("_initLogfile directory not found: " + Path.GetDirectoryName(Logfile));
+                throw new DirectoryNotFoundException("_initLogfile. Directory not found: " + Path.GetDirectoryName(Logfile));
             }
 
             _checkTrafficDataEntries();
