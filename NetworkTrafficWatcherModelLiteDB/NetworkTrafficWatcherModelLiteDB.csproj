@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DayReading.cs" />
-    <Compile Include="NetworkTrafficWatcher.cs" />
+    <Compile Include="NetworkTrafficWatcherModelLiteDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

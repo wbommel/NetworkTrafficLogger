@@ -70,6 +70,26 @@ namespace vobsoft.net
         #endregion
 
         #region private functions
+        private Machine _fetchLocalMachine(LiteDatabase db)
+        {
+            //get TrafficData of db
+            var allMachines = db.GetCollection<Machine>("machines");
+            Machine localMachine;
+
+            //get machine
+            if (!allMachines.Exists(x => x.MachineName == Environment.MachineName))
+            {
+                localMachine = new Machine() { MachineName = Environment.MachineName };
+                allMachines.Insert(localMachine);
+            }
+            else
+            {
+                localMachine = allMachines.FindOne(x => x.MachineName == Environment.MachineName);
+            }
+
+            return localMachine;
+        }
+
         private void _reloadLogfile()
         {
             if (!File.Exists(_fileName))

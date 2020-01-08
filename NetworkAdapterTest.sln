@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTrafficLoggerLiteDB"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSON2LiteDB", "JSON2LiteDB\JSON2LiteDB.csproj", "{B91A205A-E247-455C-9534-D9840371C997}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTrafficWatcherModelLiteDB", "NetworkTrafficWatcherModelLiteDB\NetworkTrafficWatcherModelLiteDB.csproj", "{3AEDF44D-1932-43C7-ADDE-0B66236F890A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,18 @@ Global
 		{B91A205A-E247-455C-9534-D9840371C997}.Release|x64.Build.0 = Release|Any CPU
 		{B91A205A-E247-455C-9534-D9840371C997}.Release|x86.ActiveCfg = Release|Any CPU
 		{B91A205A-E247-455C-9534-D9840371C997}.Release|x86.Build.0 = Release|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Debug|x64.Build.0 = Debug|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Debug|x86.Build.0 = Debug|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Release|x64.ActiveCfg = Release|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Release|x64.Build.0 = Release|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Release|x86.ActiveCfg = Release|Any CPU
+		{3AEDF44D-1932-43C7-ADDE-0B66236F890A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
