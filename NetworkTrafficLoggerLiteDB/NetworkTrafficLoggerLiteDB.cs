@@ -88,7 +88,7 @@ namespace vobsoft.net.LiteDBLogger
                 if (!NetworkInterface.GetIsNetworkAvailable()) { return; }
 
                 //load interfaces
-                //localMachine.Interfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
+                //localMachine.Interfaces = db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
                 _fetchInterfaces(db, localMachine);
 
                 //go through interface collection
@@ -116,7 +116,7 @@ namespace vobsoft.net.LiteDBLogger
         private Machine _fetchLocalMachine(LiteDatabase db)
         {
             //get TrafficData of db
-            var allMachines = db.GetCollection<Machine>("machines");
+            var allMachines = db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
             Machine localMachine;
 
             //get machine
@@ -135,12 +135,12 @@ namespace vobsoft.net.LiteDBLogger
 
         private void _fetchInterfaces(LiteDatabase db, Machine machine)
         {
-            machine.Interfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
+            machine.Interfaces = db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
         }
 
         private void _fetchReadings(LiteDatabase db, LocalNetworkInterface lni)
         {
-            lni.Readings = db.GetCollection<Reading>("readings");
+            lni.Readings = db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
         }
 
         private void _tmrLoggingInterval_Elapsed(object sender, ElapsedEventArgs e)
@@ -162,8 +162,8 @@ namespace vobsoft.net.LiteDBLogger
 
                     var localMachine = _fetchLocalMachine(db);
                     _fetchInterfaces(db, localMachine);
-                    var dbInterfaces = db.GetCollection<LocalNetworkInterface>("interfaces");
-                    var dbReadings= db.GetCollection<Reading>("readings");
+                    var dbInterfaces = db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
+                    var dbReadings= db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
 
                     //get current time
                     var dtNow = DateTime.Now;

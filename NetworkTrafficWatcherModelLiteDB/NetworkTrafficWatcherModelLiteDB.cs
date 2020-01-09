@@ -1,13 +1,13 @@
 ﻿using LiteDB;
 using Microsoft.Win32.SafeHandles;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using vobsoft.net.model;
+using vobsoft.net.LiteDBLogger;
+using vobsoft.net.LiteDBLogger.model;
 
 namespace vobsoft.net
 {
@@ -15,8 +15,12 @@ namespace vobsoft.net
     {
         #region declarations
         private string _fileName;
-        private TrafficData _trafficData = null;
-        private Machine _localMachine = null;
+
+        private LiteDatabase _db;
+
+        LiteCollection<Machine> _machines;
+        LiteCollection<LocalNetworkInterface> _interfaces;
+        LiteCollection<Reading> _readings;
 
         private int _ioExceptionCount = 0;
         private int _exceptionCount = 0;
@@ -34,6 +38,20 @@ namespace vobsoft.net
         #region constructor
         public NetworkTrafficWatcherModelLiteDB()
         {
+            _db = new LiteDatabase(new ConnectionString()
+            {
+                Filename = _fileName,
+                Mode = ConnectionMode.Shared
+            });
+
+            //fetch data
+            _machines = _db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
+            _interfaces = _db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
+            _readings = _db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
+
+            //create indexes
+            _interfaces.EnsureIndex(x => x.MachineId);
+            _readings.EnsureIndex(x => x.InterfaceId);
         }
 
         #region dispose pattern accoring to MSDN article (https://docs.microsoft.com/de-de/dotnet/standard/garbage-collection/implementing-dispose)
@@ -60,8 +78,10 @@ namespace vobsoft.net
                 handle.Dispose();
                 // Free any other managed objects here.
                 //
-                _trafficData = null;
-                _localMachine = null;
+                _machines = null;
+                _interfaces = null;
+                _readings = null;
+                _db.Dispose();
             }
 
             disposed = true;
@@ -73,7 +93,7 @@ namespace vobsoft.net
         private Machine _fetchLocalMachine(LiteDatabase db)
         {
             //get TrafficData of db
-            var allMachines = db.GetCollection<Machine>("machines");
+            var allMachines = db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
             Machine localMachine;
 
             //get machine
@@ -88,53 +108,6 @@ namespace vobsoft.net
             }
 
             return localMachine;
-        }
-
-        private void _reloadLogfile()
-        {
-            if (!File.Exists(_fileName))
-            {
-                OnFileError(new FileErrorEventArgs() { Type = FileErrorEventArgs.EventType.FileNotFound, LastMessage = "File not found: '" + _fileName + "'" });
-                return;
-            }
-
-            bool _fileWasRead = false;
-            int _timeout = 0;
-
-            while (!_fileWasRead)
-            {
-                if (_timeout == 30)
-                {
-                    OnFileError(new FileErrorEventArgs() { Type = FileErrorEventArgs.EventType.Timeout, IOExceptionCount = _ioExceptionCount, ExceptionCount = _exceptionCount, LastMessage = "Timeout reached (30s)" });
-                    break;
-                }
-
-                try
-                {
-                    using (var db = new LiteDatabase(_fileName))
-                    {
-                        _fileWasRead = true;
-                    }
-                }
-                catch (IOException e)
-                {
-                    if (!string.IsNullOrEmpty(e.Message))
-                    {
-                        _ioExceptionCount++;
-                        OnFileError(new FileErrorEventArgs() { Type = FileErrorEventArgs.EventType.Timeout, IOExceptionCount = _ioExceptionCount, ExceptionCount = _exceptionCount, LastMessage = e.Message });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (!string.IsNullOrEmpty(ex.Message))
-                    {
-                        _exceptionCount++;
-                        OnFileError(new FileErrorEventArgs() { Type = FileErrorEventArgs.EventType.Timeout, IOExceptionCount = _ioExceptionCount, ExceptionCount = _exceptionCount, LastMessage = ex.Message });
-                    }
-                }
-
-                _timeout++;
-            }
         }
 
         private Reading _getNewestReading(LocalNetworkInterface lni)

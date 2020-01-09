@@ -57,9 +57,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetworkTrafficLogger\NetworkTrafficLogger.csproj">
-      <Project>{2dc4d466-0cdd-41a3-a59a-60410864451b}</Project>
-      <Name>NetworkTrafficLogger</Name>
+    <ProjectReference Include="..\NetworkTrafficLoggerLiteDB\NetworkTrafficLoggerLiteDB.csproj">
+      <Project>{1BA123A7-87E2-451F-9E3F-242D771B7BB6}</Project>
+      <Name>NetworkTrafficLoggerLiteDB</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

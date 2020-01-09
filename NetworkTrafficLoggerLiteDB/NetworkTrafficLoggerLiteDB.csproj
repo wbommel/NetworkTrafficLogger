@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="model\LocalNetworkInterface.cs" />
     <Compile Include="model\Machine.cs" />
     <Compile Include="model\reading.cs" />
