@@ -16,11 +16,13 @@ namespace vobsoft.net
         #region declarations
         private string _fileName;
 
-        private LiteDatabase _db;
+        private Machine _localMachine;
 
-        LiteCollection<Machine> _machines;
-        LiteCollection<LocalNetworkInterface> _interfaces;
-        LiteCollection<Reading> _readings;
+        private LiteDatabase _db;
+        LiteCollection<Machine> _allMachines;
+        LiteCollection<LocalNetworkInterface> _allInterfaces;
+        IEnumerable<LocalNetworkInterface> _localInterfaces;
+        LiteCollection<Reading> _allRreadings;
 
         private int _ioExceptionCount = 0;
         private int _exceptionCount = 0;
@@ -45,13 +47,16 @@ namespace vobsoft.net
             });
 
             //fetch data
-            _machines = _db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
-            _interfaces = _db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
-            _readings = _db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
+            _allMachines = _db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
+            _allInterfaces = _db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
+            _allRreadings = _db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
+
+            _fetchLocalMachine();
+            _fetchLocalInterfaces();
 
             //create indexes
-            _interfaces.EnsureIndex(x => x.MachineId);
-            _readings.EnsureIndex(x => x.InterfaceId);
+            _allInterfaces.EnsureIndex(x => x.MachineId);
+            _allRreadings.EnsureIndex(x => x.InterfaceId);
         }
 
         #region dispose pattern accoring to MSDN article (https://docs.microsoft.com/de-de/dotnet/standard/garbage-collection/implementing-dispose)
@@ -78,9 +83,10 @@ namespace vobsoft.net
                 handle.Dispose();
                 // Free any other managed objects here.
                 //
-                _machines = null;
-                _interfaces = null;
-                _readings = null;
+                _localMachine = null;
+                _allMachines = null;
+                _allInterfaces = null;
+                _allRreadings = null;
                 _db.Dispose();
             }
 
@@ -90,216 +96,207 @@ namespace vobsoft.net
         #endregion
 
         #region private functions
-        private Machine _fetchLocalMachine(LiteDatabase db)
+        private void _fetchLocalMachine()
         {
-            //get TrafficData of db
-            var allMachines = db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
-            Machine localMachine;
-
-            //get machine
-            if (!allMachines.Exists(x => x.MachineName == Environment.MachineName))
-            {
-                localMachine = new Machine() { MachineName = Environment.MachineName };
-                allMachines.Insert(localMachine);
-            }
-            else
-            {
-                localMachine = allMachines.FindOne(x => x.MachineName == Environment.MachineName);
-            }
-
-            return localMachine;
+            _localMachine = _allMachines.FindOne(x => x.MachineName == Environment.MachineName);
+            if (_localMachine == null) { }
         }
 
-        private Reading _getNewestReading(LocalNetworkInterface lni)
+        private void _fetchLocalInterfaces()
         {
-            long lastReadingTime = 0;
-            Reading lastReading = null;
-            foreach (var reading in lni.Readings.Values)
-            {
-                if (reading.LogTime > lastReadingTime) { lastReading = reading; }
-            }
-
-            return lastReading;
+             _localInterfaces = _allInterfaces.Find(Query.EQ("MachineId", _localMachine.Id));
         }
 
-        private Dictionary<long, DayReading> _getDailyUsage(LocalNetworkInterface lni)
-        {
-            var retVal = new Dictionary<long, DayReading>();
-            long zwischenReceived = 0;
-            long zwischenSent = 0;
-            long day;
-            //var lastReading = new DayReading() { Day = 0, BytesReceived = 0, BytesSent = 0 };
+        //private Reading _getNewestReading(LocalNetworkInterface lni)
+        //{
+        //    long lastReadingTime = 0;
+        //    Reading lastReading = null;
+        //    foreach (var reading in lni.Readings.Values)
+        //    {
+        //        if (reading.LogTime > lastReadingTime) { lastReading = reading; }
+        //    }
 
-            foreach (var reading in lni.Readings.Values)
-            {
-                //get day information and see if lastReading is still ok
-                day = long.Parse(reading.LogTime.ToString().Substring(0, 8));
+        //    return lastReading;
+        //}
 
-                if (!retVal.ContainsKey(day))
-                {
-                    retVal.Add(day, new DayReading() { Day = day, BytesReceived = reading.BytesReceived, BytesSent = reading.BytesSent });
-                    zwischenReceived = 0;
-                    zwischenSent = 0;
-                }
-                else
-                {
-                    //potentially set zwischen values
-                    if (reading.BytesReceived + zwischenReceived < retVal[day].BytesReceived)
-                    {
-                        zwischenReceived += retVal[day].BytesReceived;
-                        zwischenSent += retVal[day].BytesSent;
-                    }
+        //private Dictionary<long, DayReading> _getDailyUsage(LocalNetworkInterface lni)
+        //{
+        //    var retVal = new Dictionary<long, DayReading>();
+        //    long zwischenReceived = 0;
+        //    long zwischenSent = 0;
+        //    long day;
+        //    //var lastReading = new DayReading() { Day = 0, BytesReceived = 0, BytesSent = 0 };
 
-                    retVal[day].BytesReceived = reading.BytesReceived + zwischenReceived;
-                    retVal[day].BytesSent = reading.BytesSent + zwischenSent;
-                }
-            }
+        //    foreach (var reading in lni.Readings.Values)
+        //    {
+        //        //get day information and see if lastReading is still ok
+        //        day = long.Parse(reading.LogTime.ToString().Substring(0, 8));
 
-            return retVal;
-        }
+        //        if (!retVal.ContainsKey(day))
+        //        {
+        //            retVal.Add(day, new DayReading() { Day = day, BytesReceived = reading.BytesReceived, BytesSent = reading.BytesSent });
+        //            zwischenReceived = 0;
+        //            zwischenSent = 0;
+        //        }
+        //        else
+        //        {
+        //            //potentially set zwischen values
+        //            if (reading.BytesReceived + zwischenReceived < retVal[day].BytesReceived)
+        //            {
+        //                zwischenReceived += retVal[day].BytesReceived;
+        //                zwischenSent += retVal[day].BytesSent;
+        //            }
+
+        //            retVal[day].BytesReceived = reading.BytesReceived + zwischenReceived;
+        //            retVal[day].BytesSent = reading.BytesSent + zwischenSent;
+        //        }
+        //    }
+
+        //    return retVal;
+        //}
         #endregion
 
         #region properties
-        public string TestOutput
-        {
-            get
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (var ni in _localMachine.Interfaces.Values)
-                {
-                    //early continue
-                    if (ni.Status == "Down") { continue; }
+        //public string TestOutput
+        //{
+        //    get
+        //    {
+        //        StringBuilder sb = new StringBuilder();
+        //        foreach (var ni in _localMachine.Interfaces.Values)
+        //        {
+        //            //early continue
+        //            if (ni.Status == "Down") { continue; }
 
-                    Reading r = _getNewestReading(ni);
-                    sb.Append(ni.Name + " - Readings: " + ni.Readings.Count + "   Bytes Received: " + r.BytesReceived + Environment.NewLine);
+        //            Reading r = _getNewestReading(ni);
+        //            sb.Append(ni.Name + " - Readings: " + ni.Readings.Count + "   Bytes Received: " + r.BytesReceived + Environment.NewLine);
 
-                    var dayReadings = _getDailyUsage(ni);
-                    foreach (var dr in dayReadings.Values)
-                    {
-                        long usage = dr.BytesReceived + dr.BytesSent;
-                        sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
-                    }
-                }
-                return sb.ToString();
-            }
-        }
+        //            var dayReadings = _getDailyUsage(ni);
+        //            foreach (var dr in dayReadings.Values)
+        //            {
+        //                long usage = dr.BytesReceived + dr.BytesSent;
+        //                sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
+        //            }
+        //        }
+        //        return sb.ToString();
+        //    }
+        //}
 
-        public string GetDailyUsagesOfInterface(string interfaceId)
-        {
-            //prepare vars
-            var result = string.Empty;
+        //public string GetDailyUsagesOfInterface(string interfaceId)
+        //{
+        //    //prepare vars
+        //    var result = string.Empty;
 
-            //read data
-            _reloadLogfile();
+        //    //read data
+        //    _reloadLogfile();
 
-            foreach (var ni in _localMachine.Interfaces.Values)
-            {
-                //early continue
-                if (ni.InterfaceId != interfaceId) { continue; }
+        //    foreach (var ni in _localMachine.Interfaces.Values)
+        //    {
+        //        //early continue
+        //        if (ni.InterfaceId != interfaceId) { continue; }
 
-                //get data
-                StringBuilder sb = new StringBuilder();
-                var dayReadings = _getDailyUsage(ni);
-                foreach (var dr in dayReadings.Values)
-                {
-                    long usage = dr.BytesReceived + dr.BytesSent;
-                    sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
-                }
+        //        //get data
+        //        StringBuilder sb = new StringBuilder();
+        //        var dayReadings = _getDailyUsage(ni);
+        //        foreach (var dr in dayReadings.Values)
+        //        {
+        //            long usage = dr.BytesReceived + dr.BytesSent;
+        //            sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
+        //        }
 
-                result = sb.ToString();
+        //        result = sb.ToString();
 
-                break;
-            }
+        //        break;
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public long GetTodaysUsageOfInterface(string interfaceId)
-        {
-            //prepare vars
-            var result = (long)0;
-            var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
+        //public long GetTodaysUsageOfInterface(string interfaceId)
+        //{
+        //    //prepare vars
+        //    var result = (long)0;
+        //    var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
 
-            //read data
-            _reloadLogfile();
+        //    //read data
+        //    _reloadLogfile();
 
-            foreach (var ni in _localMachine.Interfaces.Values)
-            {
-                //early continue
-                if (ni.InterfaceId != interfaceId) { continue; }
+        //    foreach (var ni in _localMachine.Interfaces.Values)
+        //    {
+        //        //early continue
+        //        if (ni.InterfaceId != interfaceId) { continue; }
 
-                //get data
-                var dayReadings = _getDailyUsage(ni);
-                foreach (var dr in dayReadings.Values)
-                {
-                    //early continue
-                    if (dr.Day != today) { continue; }
+        //        //get data
+        //        var dayReadings = _getDailyUsage(ni);
+        //        foreach (var dr in dayReadings.Values)
+        //        {
+        //            //early continue
+        //            if (dr.Day != today) { continue; }
 
-                    result = dr.BytesReceived + dr.BytesSent;
+        //            result = dr.BytesReceived + dr.BytesSent;
 
-                    break;
-                }
+        //            break;
+        //        }
 
-                break;
-            }
+        //        break;
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public long GetUsageOfInterfaceSince(string interfaceId, long usageSinceDay)
-        {
-            //prepare vars
-            var result = (long)0;
-            var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
-            long seekDay;
-            if (usageSinceDay <= DateTime.Now.Day)
-            {
-                seekDay = long.Parse(
-                    DateTime.Now.Year.ToString() +
-                    DateTime.Now.Month.ToString("00") +
-                    (DateTime.Now.Day - (DateTime.Now.Day - usageSinceDay)).ToString("00"));
-            }
-            else
-            {
-                seekDay = long.Parse(
-                    DateTime.Now.Year.ToString() +
-                    DateTime.Now.AddMonths(-1).Month.ToString("00") +
-                    usageSinceDay.ToString("00"));
-            }
+        //public long GetUsageOfInterfaceSince(string interfaceId, long usageSinceDay)
+        //{
+        //    //prepare vars
+        //    var result = (long)0;
+        //    var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
+        //    long seekDay;
+        //    if (usageSinceDay <= DateTime.Now.Day)
+        //    {
+        //        seekDay = long.Parse(
+        //            DateTime.Now.Year.ToString() +
+        //            DateTime.Now.Month.ToString("00") +
+        //            (DateTime.Now.Day - (DateTime.Now.Day - usageSinceDay)).ToString("00"));
+        //    }
+        //    else
+        //    {
+        //        seekDay = long.Parse(
+        //            DateTime.Now.Year.ToString() +
+        //            DateTime.Now.AddMonths(-1).Month.ToString("00") +
+        //            usageSinceDay.ToString("00"));
+        //    }
 
-            //read data
-            _reloadLogfile();
+        //    //read data
+        //    _reloadLogfile();
 
-            foreach (var ni in _localMachine.Interfaces.Values)
-            {
-                //early continue
-                if (ni.InterfaceId != interfaceId) { continue; }
+        //    foreach (var ni in _localMachine.Interfaces.Values)
+        //    {
+        //        //early continue
+        //        if (ni.InterfaceId != interfaceId) { continue; }
 
-                //get data
-                var dayReadings = _getDailyUsage(ni);
-                foreach (var dr in dayReadings.Values)
-                {
-                    //early continue
-                    if (dr.Day < seekDay) { continue; }
+        //        //get data
+        //        var dayReadings = _getDailyUsage(ni);
+        //        foreach (var dr in dayReadings.Values)
+        //        {
+        //            //early continue
+        //            if (dr.Day < seekDay) { continue; }
 
-                    result += dr.BytesReceived + dr.BytesSent;
-                }
+        //            result += dr.BytesReceived + dr.BytesSent;
+        //        }
 
-                break;
-            }
+        //        break;
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public Machine LocalMachine { get { return _localMachine; } }
+        //public Machine LocalMachine { get { return _localMachine; } }
         #endregion
 
         #region methods
-        public void ReadTrafficData(string fileName)
-        {
-            _fileName = fileName;
-            _reloadLogfile();
-        }
+        //public void ReadTrafficData(string fileName)
+        //{
+        //    _fileName = fileName;
+        //    _reloadLogfile();
+        //}
         #endregion
     }
 
