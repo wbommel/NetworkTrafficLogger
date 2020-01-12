@@ -8,6 +8,6 @@ namespace vobsoft.net.LiteDBLogger.model
 
         public string MachineName { get; set; }
 
-        public LiteCollection<LocalNetworkInterface> Interfaces { get; set; }
+        //public LiteCollection<LocalNetworkInterface> Interfaces { get; set; }
     }
 }

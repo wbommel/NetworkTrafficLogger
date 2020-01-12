@@ -9,8 +9,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        var ntlJSON = new NetworkTrafficLogger();
-        ntlJSON.StartLogging();
+        //var ntlJSON = new NetworkTrafficLogger();
+        //ntlJSON.StartLogging();
 
         var ntlLiteDB = new NetworkTrafficLoggerLiteDB();
         ntlLiteDB.StartLogging();
@@ -31,7 +31,7 @@ class Program
         }
 
         ntlLiteDB.StopLogging();
-        ntlJSON.StopLogging();
+        //ntlJSON.StopLogging();
         
 
         //Console.ReadKey();

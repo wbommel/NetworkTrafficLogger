@@ -20,6 +20,6 @@ namespace vobsoft.net.LiteDBLogger.model
 
         public long Speed { get; set; }
 
-        public LiteCollection<Reading> Readings { get; set; }
+        //public LiteCollection<Reading> Readings { get; set; }
     }
 }

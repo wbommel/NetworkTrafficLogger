@@ -1,0 +1,48 @@
+﻿<Window x:Class="NetworkTrafficWatcherWPFLiteDB.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NetworkTrafficWatcherWPFLiteDB"
+        xmlns:VM="clr-namespace:NetworkTrafficWatcherWPFLiteDB.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="1100">
+    <!--DataContext="{StaticResource dcMainWindowViewModel}"-->
+    <!--<Window.DataContext>
+        <VM:MainWindowViewModel/>
+    </Window.DataContext>-->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Available Network Interfaces:" HorizontalAlignment="Left" Margin="20,19,0,0" VerticalAlignment="Top" Width="165" Grid.ColumnSpan="2" Height="26"/>
+        <ComboBox 
+            Margin="190,19,9.6,0" 
+            VerticalAlignment="Top"
+            ItemsSource="{Binding AvailableInterfaces}"
+            SelectedItem="{Binding SelectedInterface}"
+            DisplayMemberPath="Name" Height="22" Grid.ColumnSpan="2"
+            />
+
+
+        <Label Grid.Row="1" Grid.Column="0" Content="Heutiger Verbrauch:" Height="42" Margin="10,10,9.8,0" HorizontalContentAlignment="Right"  VerticalAlignment="Top" FontSize="24" />
+        <Label Grid.Row="1" Grid.Column="0" Content="{Binding TodaysGiB}" Margin="10,57,167.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="0" Content="GiB" Margin="0,57,10.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
+        <Label Grid.Row="1" Grid.Column="0" Content="{Binding TodaysMiB}" Margin="10,157,167.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="0" Content="MiB" Margin="0,157,10.2,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
+
+        <Label Grid.Row="1" Grid.Column="1" Content="Verbrauch Seit dem letzten ...:" Height="42" Margin="9.8,10,9.6,0" HorizontalContentAlignment="Right"  VerticalAlignment="Top" FontSize="24" />
+        <Label Grid.Row="1" Grid.Column="1" Content="{Binding GiBSince}" Margin="9.8,57,166.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="1" Content="GiB" Margin="0,57,9.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="72" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
+        <Label Grid.Row="1" Grid.Column="1" Content="{Binding MiBSince}" Margin="9.8,157,166.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" />
+        <Label Grid.Row="1" Grid.Column="1" Content="MiB" Margin="0,157,9.6,0" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="95" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" Width="152" />
+
+        <!--<Label Grid.ColumnSpan="2" Grid.RowSpan="2" Content="{Binding Results}"/>-->
+    </Grid>
+</Window>

@@ -38,8 +38,20 @@ namespace vobsoft.net
         #endregion
 
         #region constructor
-        public NetworkTrafficWatcherModelLiteDB()
+        public NetworkTrafficWatcherModelLiteDB(string fileName)
         {
+            _fileName = fileName;
+            if (!File.Exists(_fileName))
+            {
+                OnFileError(new FileErrorEventArgs()
+                {
+                    ExceptionCount = 1,
+                    IOExceptionCount = 0,
+                    Type = FileErrorEventArgs.EventType.FileNotFound,
+                    LastMessage = "File not found: " + _fileName
+                });
+            }
+
             _db = new LiteDatabase(new ConnectionString()
             {
                 Filename = _fileName,
@@ -104,7 +116,7 @@ namespace vobsoft.net
 
         private void _fetchLocalInterfaces()
         {
-             _localInterfaces = _allInterfaces.Find(Query.EQ("MachineId", _localMachine.Id));
+            _localInterfaces = _allInterfaces.Find(Query.EQ("MachineId", _localMachine.Id));
         }
 
         //private Reading _getNewestReading(LocalNetworkInterface lni)
@@ -157,29 +169,27 @@ namespace vobsoft.net
         #endregion
 
         #region properties
-        //public string TestOutput
-        //{
-        //    get
-        //    {
-        //        StringBuilder sb = new StringBuilder();
-        //        foreach (var ni in _localMachine.Interfaces.Values)
-        //        {
-        //            //early continue
-        //            if (ni.Status == "Down") { continue; }
+        public IEnumerable<LocalNetworkInterface> LocalInterfaces { get { return _localInterfaces; } }
 
-        //            Reading r = _getNewestReading(ni);
-        //            sb.Append(ni.Name + " - Readings: " + ni.Readings.Count + "   Bytes Received: " + r.BytesReceived + Environment.NewLine);
+        public string TestOutput
+        {
+            get
+            {
+                StringBuilder sb = new StringBuilder();
 
-        //            var dayReadings = _getDailyUsage(ni);
-        //            foreach (var dr in dayReadings.Values)
-        //            {
-        //                long usage = dr.BytesReceived + dr.BytesSent;
-        //                sb.Append("     " + dr.Day + ": " + usage.ToString("N0") + Environment.NewLine);
-        //            }
-        //        }
-        //        return sb.ToString();
-        //    }
-        //}
+                foreach (var ni in _localInterfaces)
+                {
+                    sb.Append("Id: " + ni.Id + Environment.NewLine);
+                    sb.Append("Name: " + ni.Name + Environment.NewLine);
+                    sb.Append("Description: " + ni.Description + Environment.NewLine);
+                    sb.Append("InterfaceGUID: " + ni.InterfaceGUID + Environment.NewLine);
+                    sb.Append("Type: " + ni.Type + Environment.NewLine);
+                    sb.Append("Status: " + ni.Status + Environment.NewLine);
+                    sb.Append("Speed: " + ni.Speed + Environment.NewLine);
+                }
+                return sb.ToString();
+            }
+        }
 
         //public string GetDailyUsagesOfInterface(string interfaceId)
         //{
