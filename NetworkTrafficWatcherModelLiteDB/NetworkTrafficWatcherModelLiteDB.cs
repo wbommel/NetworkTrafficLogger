@@ -130,6 +130,17 @@ namespace vobsoft.net
 
         //    return lastReading;
         //}
+        private Reading _getNewestReadingForInterface(LocalNetworkInterface lni)
+        {
+            long lastReadingTime = 0;
+            Reading lastReading = null;
+            foreach (var reading in lni.Readings.Values)
+            {
+                if (reading.LogTime > lastReadingTime) { lastReading = reading; }
+            }
+            
+            return _allRreadings.FindOne(Query.EQ("InterfaceId", lni.Id));
+        }
 
         //private Dictionary<long, DayReading> _getDailyUsage(LocalNetworkInterface lni)
         //{
@@ -169,7 +180,7 @@ namespace vobsoft.net
         #endregion
 
         #region properties
-        public IEnumerable<LocalNetworkInterface> LocalInterfaces { get { return _localInterfaces; } }
+        public IEnumerable<LocalNetworkInterface> LocalInterfaces { get { return _allInterfaces; } }
 
         public string TestOutput
         {
@@ -180,6 +191,7 @@ namespace vobsoft.net
                 foreach (var ni in _localInterfaces)
                 {
                     sb.Append("Id: " + ni.Id + Environment.NewLine);
+                    sb.Append("MachineId: " + ni.MachineId + Environment.NewLine);
                     sb.Append("Name: " + ni.Name + Environment.NewLine);
                     sb.Append("Description: " + ni.Description + Environment.NewLine);
                     sb.Append("InterfaceGUID: " + ni.InterfaceGUID + Environment.NewLine);
