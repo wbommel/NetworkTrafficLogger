@@ -132,14 +132,12 @@ namespace vobsoft.net
         //}
         private Reading _getNewestReadingForInterface(LocalNetworkInterface lni)
         {
-            long lastReadingTime = 0;
-            Reading lastReading = null;
-            foreach (var reading in lni.Readings.Values)
-            {
-                if (reading.LogTime > lastReadingTime) { lastReading = reading; }
-            }
+            _allRreadings.EnsureIndex(x => x.InterfaceId);
             
-            return _allRreadings.FindOne(Query.EQ("InterfaceId", lni.Id));
+            var results = _allRreadings.Find(x => x.InterfaceId == lni.Id);
+
+
+            return null;
         }
 
         //private Dictionary<long, DayReading> _getDailyUsage(LocalNetworkInterface lni)

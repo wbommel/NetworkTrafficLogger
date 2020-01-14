@@ -24,34 +24,22 @@ namespace NetworkTrafficWatcherWPFLiteDB.ViewModels
         #region constructor
         public MainWindowViewModel()
         {
-
             //get logfile
-            _logFile = Settings.Default.Logfile;
+            _logFile = Helpers.GetLogFilename();
 
-#if DEBUG
-            _logFile = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..\NetworkAdapterTest\bin\Debug\NetworkTraffic.db";
-#endif
             using (var ntw = new NetworkTrafficWatcherModelLiteDB(_logFile))
             {
-                //ntw.ReadTrafficData(_logFile);
-                //Results = ntw.TestOutput;
-
                 foreach (var ai in ntw.LocalInterfaces)
                 {
                     AvailableInterfaces.Add(ai);
                 }
 
-
-
                 OnPropertyChanged("AvailableInterfaces");
             }
-
-
 
             _fsw = new FileSystemWatcher(Path.GetDirectoryName(_logFile));
             _fsw.Changed += Fsw_Changed;
             _fsw.EnableRaisingEvents = true;
-
         }
         #endregion
 
