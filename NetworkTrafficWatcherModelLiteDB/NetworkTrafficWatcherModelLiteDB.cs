@@ -133,9 +133,9 @@ namespace vobsoft.net
         private Reading _getNewestReadingForInterface(LocalNetworkInterface lni)
         {
             _allRreadings.EnsureIndex(x => x.InterfaceId);
-            
-            var results = _allRreadings.Find(x => x.InterfaceId == lni.Id);
 
+            System.Linq.Enumerable results = _allRreadings.Find(x => x.InterfaceId == lni.Id);
+            
 
             return null;
         }
@@ -178,14 +178,14 @@ namespace vobsoft.net
         #endregion
 
         #region properties
-        public IEnumerable<LocalNetworkInterface> LocalInterfaces { get { return _allInterfaces; } }
+        public LiteCollection<LocalNetworkInterface> LocalInterfaces { get { return _allInterfaces; } }
 
         public string TestOutput
         {
             get
             {
                 StringBuilder sb = new StringBuilder();
-
+                
                 foreach (var ni in _localInterfaces)
                 {
                     sb.Append("Id: " + ni.Id + Environment.NewLine);
