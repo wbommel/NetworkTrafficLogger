@@ -62,10 +62,6 @@
       <Project>{1ba123a7-87e2-451f-9e3f-242d771b7bb6}</Project>
       <Name>NetworkTrafficLoggerLiteDB</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NetworkTrafficLogger\NetworkTrafficLogger.csproj">
-      <Project>{2dc4d466-0cdd-41a3-a59a-60410864451b}</Project>
-      <Name>NetworkTrafficLogger</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
