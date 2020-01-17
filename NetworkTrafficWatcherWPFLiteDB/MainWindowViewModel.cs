@@ -19,6 +19,7 @@ namespace NetworkTrafficWatcherWPFLiteDB.ViewModels
         #region declarations
         string _logFile;
         FileSystemWatcher _fsw;
+        NetworkTrafficWatcherModelLiteDB _ntw;
         #endregion
 
         #region constructor
@@ -27,15 +28,15 @@ namespace NetworkTrafficWatcherWPFLiteDB.ViewModels
             //get logfile
             _logFile = Helpers.GetLogFilename();
 
-            using (var ntw = new NetworkTrafficWatcherModelLiteDB(_logFile))
-            {
-                foreach (var ai in ntw.LocalInterfaces)
-                {
-                    AvailableInterfaces.Add(ai);
-                }
+            _ntw = NetworkTrafficWatcherModelLiteDB.Instance;
+            _ntw.Filename = _logFile;
 
-                OnPropertyChanged("AvailableInterfaces");
+            foreach (var ai in _ntw.LocalInterfaces)
+            {
+                AvailableInterfaces.Add(ai);
             }
+
+            OnPropertyChanged("AvailableInterfaces");
 
             _fsw = new FileSystemWatcher(Path.GetDirectoryName(_logFile));
             _fsw.Changed += Fsw_Changed;
@@ -58,37 +59,31 @@ namespace NetworkTrafficWatcherWPFLiteDB.ViewModels
             //early exit
             if (SelectedInterface == null) { return; }
 
-            using (var ntw = new NetworkTrafficWatcherModelLiteDB(_logFile))
-            {
                 //ntw.ReadTrafficData(_logFile);
 
                 //_getDailyUsagesData();
-                _getTodaysUsageData(ntw);
-                _getUsageDataSince(ntw);
-            }
+                _getTodaysUsageData();
+                _getUsageDataSince();
         }
 
         private void _getDailyUsagesData()
         {
-            using (var ntw = new NetworkTrafficWatcherModelLiteDB(_logFile))
-            {
-                //ntw.ReadTrafficData(_logFile);
+                //_ntw.ReadTrafficData(_logFile);
                 //Results = ntw.GetDailyUsagesOfInterface(SelectedInterface.InterfaceId);
-            }
         }
 
-        private void _getTodaysUsageData(NetworkTrafficWatcherModelLiteDB ntw)
+        private void _getTodaysUsageData()
         {
-            //long todaysUsage = ntw.GetTodaysUsageOfInterface(SelectedInterface.InterfaceId);
+            long todaysUsage = _ntw.GetTodaysUsageOfInterface(SelectedInterface.Id);
             //Results = todaysUsage.ToString("N0");
 
-            //TodaysGiB = ((double)todaysUsage / 1000000000).ToString("#,##0.00");// + " GiB";
-            //TodaysMiB = ((double)todaysUsage / 1000000).ToString("#,##0.00");// + " MiB";
+            TodaysGiB = ((double)todaysUsage / 1000000000).ToString("#,##0.00");// + " GiB";
+            TodaysMiB = ((double)todaysUsage / 1000000).ToString("#,##0.00");// + " MiB";
         }
 
-        private void _getUsageDataSince(NetworkTrafficWatcherModelLiteDB ntw)
+        private void _getUsageDataSince()
         {
-            //long UsageSince = ntw.GetUsageOfInterfaceSince(SelectedInterface.InterfaceId, 5);
+            //long UsageSince = _ntw.GetUsageOfInterfaceSince(SelectedInterface.InterfaceId, 5);
             //Results = UsageSince.ToString("N0");
 
             //GiBSince = ((double)UsageSince / 1000000000).ToString("#,##0.00");// + " GiB";

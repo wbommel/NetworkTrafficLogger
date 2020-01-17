@@ -8,12 +8,15 @@ using System.Text;
 using System.Threading;
 using vobsoft.net.LiteDBLogger;
 using vobsoft.net.LiteDBLogger.model;
+using System.Linq;
 
 namespace vobsoft.net
 {
-    public class NetworkTrafficWatcherModelLiteDB : IDisposable
+    public sealed class NetworkTrafficWatcherModelLiteDB
     {
         #region declarations
+        private static readonly Lazy<NetworkTrafficWatcherModelLiteDB> lazy = new Lazy<NetworkTrafficWatcherModelLiteDB>(() => new NetworkTrafficWatcherModelLiteDB());
+
         private string _fileName;
 
         private Machine _localMachine;
@@ -22,7 +25,7 @@ namespace vobsoft.net
         LiteCollection<Machine> _allMachines;
         LiteCollection<LocalNetworkInterface> _allInterfaces;
         IEnumerable<LocalNetworkInterface> _localInterfaces;
-        LiteCollection<Reading> _allRreadings;
+        LiteCollection<Reading> _allReadings;
 
         private int _ioExceptionCount = 0;
         private int _exceptionCount = 0;
@@ -38,9 +41,22 @@ namespace vobsoft.net
         #endregion
 
         #region constructor
-        public NetworkTrafficWatcherModelLiteDB(string fileName)
+        private NetworkTrafficWatcherModelLiteDB()
         {
-            _fileName = fileName;
+        }
+        ~NetworkTrafficWatcherModelLiteDB()
+        {
+            _localMachine = null;
+            _allMachines = null;
+            _allInterfaces = null;
+            _allReadings = null;
+            _db.Dispose();
+        }
+        #endregion
+
+        #region private functions
+        private void _initDatabase()
+        {
             if (!File.Exists(_fileName))
             {
                 OnFileError(new FileErrorEventArgs()
@@ -61,53 +77,16 @@ namespace vobsoft.net
             //fetch data
             _allMachines = _db.GetCollection<Machine>(Constants.COLLECTION_MACHINES);
             _allInterfaces = _db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
-            _allRreadings = _db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
+            _allReadings = _db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
 
             _fetchLocalMachine();
             _fetchLocalInterfaces();
 
             //create indexes
             _allInterfaces.EnsureIndex(x => x.MachineId);
-            _allRreadings.EnsureIndex(x => x.InterfaceId);
+            _allReadings.EnsureIndex(x => x.InterfaceId);
         }
 
-        #region dispose pattern accoring to MSDN article (https://docs.microsoft.com/de-de/dotnet/standard/garbage-collection/implementing-dispose)
-        // Flag: Has Dispose already been called?
-        bool disposed = false;
-        // Instantiate a SafeHandle instance.
-        SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
-
-        // Public implementation of Dispose pattern callable by consumers.
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        // Protected implementation of Dispose pattern.
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-                handle.Dispose();
-                // Free any other managed objects here.
-                //
-                _localMachine = null;
-                _allMachines = null;
-                _allInterfaces = null;
-                _allRreadings = null;
-                _db.Dispose();
-            }
-
-            disposed = true;
-        }
-        #endregion
-        #endregion
-
-        #region private functions
         private void _fetchLocalMachine()
         {
             _localMachine = _allMachines.FindOne(x => x.MachineName == Environment.MachineName);
@@ -132,11 +111,14 @@ namespace vobsoft.net
         //}
         private Reading _getNewestReadingForInterface(LocalNetworkInterface lni)
         {
-            _allRreadings.EnsureIndex(x => x.InterfaceId);
+            _allReadings.EnsureIndex(x => x.InterfaceId);
 
-            System.Linq.Enumerable results = _allRreadings.Find(x => x.InterfaceId == lni.Id);
-            
+            var results = _allReadings
+                .Find(Query.EQ("InterfaceId", lni.Id))
+                .OrderByDescending(x => x.LogTime);
 
+            //ILiteQueryable<Reading> results = _allRreadings.Find(x => x.InterfaceId == lni.Id) as ILiteQueryable<Reading>;
+            //results.or
             return null;
         }
 
@@ -178,14 +160,28 @@ namespace vobsoft.net
         #endregion
 
         #region properties
-        public LiteCollection<LocalNetworkInterface> LocalInterfaces { get { return _allInterfaces; } }
+        public static NetworkTrafficWatcherModelLiteDB Instance { get { return lazy.Value; } }
 
+        public string Filename
+        {
+            get { return _fileName; }
+            set
+            {
+                _fileName = value;
+                _initDatabase();
+            }
+        }
+
+        public IEnumerable<LocalNetworkInterface> LocalInterfaces { get { return _localInterfaces; } }
+        #endregion
+
+        #region methods
         public string TestOutput
         {
             get
             {
                 StringBuilder sb = new StringBuilder();
-                
+
                 foreach (var ni in _localInterfaces)
                 {
                     sb.Append("Id: " + ni.Id + Environment.NewLine);
@@ -231,37 +227,50 @@ namespace vobsoft.net
         //    return result;
         //}
 
-        //public long GetTodaysUsageOfInterface(string interfaceId)
-        //{
-        //    //prepare vars
-        //    var result = (long)0;
-        //    var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
+        public long GetTodaysUsageOfInterface(long interfaceId)
+        {
+            //prepare vars
+            var result = (long)0;
+            var today = long.Parse(DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00"));
 
-        //    //read data
-        //    _reloadLogfile();
+            var todaysReadings = _allReadings.Find(
+                Query.And(
+                    Query.EQ("InterfaceId", interfaceId),
+                    Query.And(
+                        Query.GTE("LogTime", today * 10 ^ 6),
+                        Query.LT("LogTime", today * 10 ^ 6 + 1))))
+                .OrderBy(x => x.LogTime);
 
-        //    foreach (var ni in _localMachine.Interfaces.Values)
-        //    {
-        //        //early continue
-        //        if (ni.InterfaceId != interfaceId) { continue; }
+            long zwischenReceived = 0;
+            long zwischenSent = 0;
 
-        //        //get data
-        //        var dayReadings = _getDailyUsage(ni);
-        //        foreach (var dr in dayReadings.Values)
-        //        {
-        //            //early continue
-        //            if (dr.Day != today) { continue; }
+            foreach (var r in todaysReadings)
+            {
 
-        //            result = dr.BytesReceived + dr.BytesSent;
+            }
 
-        //            break;
-        //        }
+            foreach (var ni in _localMachine.Interfaces.Values)
+            {
+                //early continue
+                if (ni.InterfaceId != interfaceId) { continue; }
 
-        //        break;
-        //    }
+                //get data
+                var dayReadings = _getDailyUsage(ni);
+                foreach (var dr in dayReadings.Values)
+                {
+                    //early continue
+                    if (dr.Day != today) { continue; }
 
-        //    return result;
-        //}
+                    result = dr.BytesReceived + dr.BytesSent;
+
+                    break;
+                }
+
+                break;
+            }
+
+            return result;
+        }
 
         //public long GetUsageOfInterfaceSince(string interfaceId, long usageSinceDay)
         //{
@@ -309,9 +318,7 @@ namespace vobsoft.net
         //}
 
         //public Machine LocalMachine { get { return _localMachine; } }
-        #endregion
 
-        #region methods
         //public void ReadTrafficData(string fileName)
         //{
         //    _fileName = fileName;
