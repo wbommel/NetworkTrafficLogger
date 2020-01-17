@@ -155,6 +155,11 @@ namespace vobsoft.net.LiteDBLogger
                     var dbInterfaces = db.GetCollection<LocalNetworkInterface>(Constants.COLLECTION_INTERFACES);
                     var dbReadings = db.GetCollection<Reading>(Constants.COLLECTION_READINGS);
 
+                    //eventually delete broken entries here (Error: Cannot insert duplicate key in unique index '_id'. The duplicate value is '81511'.)
+                    //this error can be solved by deleting all entries behind the mentioned (i.e. 81511 - readings.count (i.e. 81515))
+                    //THis would work:
+                    //dbReadings.DeleteMany(Query.GT("_id", 81511));
+
                     //get current time
                     var dtNow = DateTime.Now;
                     long tsNow = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
