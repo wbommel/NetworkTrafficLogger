@@ -31,10 +31,10 @@ namespace vobsoft.net
         private int _exceptionCount = 0;
 
         #region events
-        protected virtual void OnFileError(FileErrorEventArgs e)
-        {
-            FileError?.Invoke(this, e);
-        }
+        //protected virtual void OnFileError(FileErrorEventArgs e)
+        //{
+        //    FileError?.Invoke(this, e);
+        //}
 
         public event EventHandler<FileErrorEventArgs> FileError;
         #endregion
@@ -59,13 +59,13 @@ namespace vobsoft.net
         {
             if (!File.Exists(_fileName))
             {
-                OnFileError(new FileErrorEventArgs()
-                {
-                    ExceptionCount = 1,
-                    IOExceptionCount = 0,
-                    Type = FileErrorEventArgs.EventType.FileNotFound,
-                    LastMessage = "File not found: " + _fileName
-                });
+                //OnFileError(new FileErrorEventArgs()
+                //{
+                //    ExceptionCount = 1,
+                //    IOExceptionCount = 0,
+                //    Type = FileErrorEventArgs.EventType.FileNotFound,
+                //    LastMessage = "File not found: " + _fileName
+                //});
             }
 
             _db = new LiteDatabase(new ConnectionString()
@@ -238,36 +238,38 @@ namespace vobsoft.net
                     Query.EQ("InterfaceId", interfaceId),
                     Query.And(
                         Query.GTE("LogTime", today * 10 ^ 6),
-                        Query.LT("LogTime", today * 10 ^ 6 + 1))))
+                        Query.LT("LogTime", (today + 1) * 10 ^ 6))))
                 .OrderBy(x => x.LogTime);
 
             long zwischenReceived = 0;
             long zwischenSent = 0;
+
+            result = todaysReadings.Count();
 
             foreach (var r in todaysReadings)
             {
 
             }
 
-            foreach (var ni in _localMachine.Interfaces.Values)
-            {
-                //early continue
-                if (ni.InterfaceId != interfaceId) { continue; }
+            //foreach (var ni in _localMachine.Interfaces.Values)
+            //{
+            //    //early continue
+            //    if (ni.InterfaceId != interfaceId) { continue; }
 
-                //get data
-                var dayReadings = _getDailyUsage(ni);
-                foreach (var dr in dayReadings.Values)
-                {
-                    //early continue
-                    if (dr.Day != today) { continue; }
+            //    //get data
+            //    var dayReadings = _getDailyUsage(ni);
+            //    foreach (var dr in dayReadings.Values)
+            //    {
+            //        //early continue
+            //        if (dr.Day != today) { continue; }
 
-                    result = dr.BytesReceived + dr.BytesSent;
+            //        result = dr.BytesReceived + dr.BytesSent;
 
-                    break;
-                }
+            //        break;
+            //    }
 
-                break;
-            }
+            //    break;
+            //}
 
             return result;
         }
